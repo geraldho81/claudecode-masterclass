@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code for Normal People</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23D94E1F'/%3E%3Cpath d='M35 35 L55 50 L35 65' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='55' y1='65' x2='75' y2='65' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E">
+    <style>
+        :root {
+            --bg: #F5F3EF;
+            --surface: #FFFFFF;
+            --surface-warm: #EDE9E3;
+            --border: rgba(0,0,0,0.08);
+            --accent: #D94E1F;
+            --accent-dim: rgba(217,78,31,0.10);
+            --accent-2: #0F766E;
+            --accent-2-dim: rgba(15,118,110,0.10);
+            --text: #1A1A1A;
+            --muted: #5C5C5C;
+            --font-display: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-display);
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        .display-xl { font-size: clamp(3.2rem, 9vw, 8rem); line-height: 0.92; font-weight: 800; letter-spacing: -0.03em; }
+        .display-lg { font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.0; font-weight: 700; letter-spacing: -0.02em; }
+        .display-md { font-size: clamp(1.2rem, 2.2vw, 1.6rem); line-height: 1.2; font-weight: 600; }
+        .body-lg { font-size: clamp(1.1rem, 1.6vw, 1.35rem); line-height: 1.55; color: var(--muted); font-weight: 400; }
+        .body-md { font-size: clamp(0.95rem, 1.2vw, 1.05rem); line-height: 1.5; color: var(--muted); font-weight: 400; }
+        .label { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+
+        /* Progress + nav */
+        .progress-container {
+            position: fixed; right: 24px; top: 50%; transform: translateY(-50%);
+            width: 3px; height: 120px; background: rgba(0,0,0,0.12); border-radius: 3px; z-index: 1000;
+        }
+        .progress-fill { width: 100%; background: var(--accent); border-radius: 3px; height: 0%; transition: height 0.1s linear; }
+        .nav-dots {
+            position: fixed; right: 18px; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 12px; z-index: 1000; margin-top: 80px;
+        }
+        .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(0,0,0,0.18); cursor: pointer; transition: all 0.3s; }
+        .nav-dot.active { background: var(--accent); transform: scale(1.3); }
+
+        @media (max-width: 900px) { .progress-container, .nav-dots { display: none; } }
+
+        /* Utility */
+        .hl { color: var(--text); font-weight: 500; }
+        .text-white { color: #fff; }
+        .text-white-muted { color: rgba(255,255,255,0.85); }
+
+        /* Image helpers */
+        .img-cover {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+
+        /* Section base */
+        section {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Reveal */
+        .reveal-up { opacity: 0; transform: translateY(50px); }
+
+        /* Terminal */
+        .terminal {
+            background: #0B0B0C;
+            border-radius: 14px;
+            padding: 22px;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            line-height: 1.65;
+            color: #F2F2F0;
+            box-shadow: 0 30px 70px -25px rgba(0,0,0,0.35);
+        }
+        .terminal-dots { display: flex; gap: 8px; margin-bottom: 14px; }
+        .dot-red { width: 10px; height: 10px; border-radius: 50%; background: #FF5F57; }
+        .dot-yel { width: 10px; height: 10px; border-radius: 50%; background: #FFBD2E; }
+        .dot-grn { width: 10px; height: 10px; border-radius: 50%; background: #28C840; }
+
+        /* Card/panel */
+        .panel {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 8px 32px -8px rgba(0,0,0,0.08);
+        }
+        .panel-dark {
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 28px;
+            color: #fff;
+        }
+
+        /* Buttons */
+        .btn-accent {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--accent); color: #fff;
+            padding: 14px 28px; border-radius: 999px;
+            font-weight: 600; font-size: 0.95rem;
+            border: none; cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-accent:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -4px rgba(217,78,31,0.35); }
+    </style>
+</head>
+<body>
+
+<div class="progress-container"><div class="progress-fill" id="progressFill"></div></div>
+<div class="nav-dots" id="navDots"></div>
+
+<!-- 1. HERO: Full-bleed photo -->
+<section id="sec-1" data-nav="1" style="min-height: 100vh; display: flex; align-items: flex-end; padding: 0;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="workspace">
+        <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; padding: 8vh 6vw; width: 100%;">
+        <p class="label reveal-up" style="color: rgba(255,255,255,0.85); margin-bottom: 14px;">Claude Code Masterclass</p>
+        <h1 class="display-xl reveal-up text-white" style="max-width: 14ch;">Claude Code<br><span style="font-weight: 400; color: rgba(255,255,255,0.75);">for Normal People</span></h1>
+        <p class="body-lg reveal-up text-white-muted" style="margin-top: 24px; max-width: 50ch;">Most people know AI as something you chat with. Claude Code is different because it can help <span style="color:#fff; font-weight:500;">carry out work</span> on your computer.</p>
+    </div>
+</section>
+
+<!-- 2. Meet the 3 Claudes: Photo left, cards right -->
+<section id="sec-2" data-nav="2" style="min-height: 100vh; display: flex; align-items: center; padding: 10vh 0;">
+    <div class="content" style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 5vw; align-items: center; max-width: 1300px; padding: 0 6vw;">
+        <div style="position: relative; height: 65vh; border-radius: 24px; overflow: hidden;">
+            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1000&q=80" class="img-cover" alt="team">
+        </div>
+        <div>
+            <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">The Ecosystem</p>
+            <h2 class="display-lg reveal-up" style="margin-bottom: 32px;">Meet the 3 Claudes</h2>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div class="panel reveal-up" style="border-left: 4px solid var(--accent-2);">
+                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 4px; color: var(--accent-2);">Claude.ai</h4>
+                    <p class="body-md">For chatting, writing, and thinking.</p>
+                </div>
+                <div class="panel reveal-up" style="border-left: 4px solid var(--text);">
+                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 4px; color: var(--text);">Claude Cowork</h4>
+                    <p class="body-md">For non-technical work across files and apps on your desktop.</p>
+                </div>
+                <div class="panel reveal-up" style="border-left: 4px solid var(--accent); background: var(--accent-dim);">
+                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 4px; color: var(--accent);">Claude Code</h4>
+                    <p class="body-md" style="color: var(--text);">For technical work inside the terminal.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3. When to Use Which: Asymmetric photo right -->
+<section id="sec-3" data-nav="3" style="min-height: 90vh; display: flex; align-items: center; padding: 10vh 0;">
+    <div class="content" style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 4vw; align-items: center; max-width: 1300px; padding: 0 6vw;">
+        <div>
+            <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">Decision Framework</p>
+            <h2 class="display-lg reveal-up" style="margin-bottom: 32px;">When to Use Which?</h2>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div class="panel reveal-up">
+                    <p class="body-md"><strong style="color: var(--accent-2);">Claude.ai</strong> — Use this when you want ideas or answers.</p>
+                </div>
+                <div class="panel reveal-up">
+                    <p class="body-md"><strong style="color: var(--text);">Claude Cowork</strong> — Use this when you want help with desktop tasks and documents.</p>
+                </div>
+                <div class="panel reveal-up" style="background: var(--accent-dim);">
+                    <p class="body-md" style="color: var(--text);"><strong style="color: var(--accent);">Claude Code</strong> — Use this when you want Claude to work inside a technical project.</p>
+                </div>
+            </div>
+        </div>
+        <div style="position: relative; height: 55vh; border-radius: 24px; overflow: hidden;">
+            <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1000&q=80" class="img-cover" alt="decision">
+        </div>
+    </div>
+</section>
+
+<!-- 4. Comparison: 3 cards over photo strip -->
+<section id="sec-4" data-nav="4" style="min-height: 100vh; display: flex; align-items: center; padding: 10vh 6vw; position: relative;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="devices">
+        <div style="position: absolute; inset: 0; background: rgba(245,243,239,0.92);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; max-width: 1200px; margin: 0 auto;">
+        <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px; text-align: center;">Comparison</p>
+        <h2 class="display-lg reveal-up" style="margin-bottom: 40px; text-align: center;">How Is This Different?</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <div class="panel reveal-up" style="border-top: 4px solid var(--accent-2);">
+                <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 8px; color: var(--accent-2);">ChatGPT</h4>
+                <p class="body-md" style="margin-bottom: 10px;">Answers &amp; Analysis</p>
+                <p class="body-md" style="font-size: 0.85rem;">Browser sandbox. Won't edit your actual files.</p>
+            </div>
+            <div class="panel reveal-up" style="border-top: 4px solid var(--text);">
+                <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 8px; color: var(--text);">Cursor</h4>
+                <p class="body-md" style="margin-bottom: 10px;">Interactive Coding</p>
+                <p class="body-md" style="font-size: 0.85rem;">Smart editor. You steer every change side-by-side.</p>
+            </div>
+            <div class="panel reveal-up" style="border-top: 4px solid var(--accent); background: var(--accent-dim);">
+                <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 8px; color: var(--accent);">Claude Code</h4>
+                <p class="body-md" style="margin-bottom: 10px; color: var(--text);">Delegated Outcomes</p>
+                <p class="body-md" style="font-size: 0.85rem; color: var(--text);">An employee inside your folders. Plans, edits, runs, asks.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 5. What is Claude Code: Full photo + floating text -->
+<section id="sec-5" data-nav="5" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1516116216624-53e697fedbea?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="code">
+        <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.25) 60%, transparent 100%);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; padding: 0 6vw; width: 100%;">
+        <div style="max-width: 650px;">
+            <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">The Product</p>
+            <h2 class="display-lg reveal-up text-white" style="margin-bottom: 24px;">What is<br>Claude Code?</h2>
+            <p class="body-lg reveal-up text-white-muted" style="margin-bottom: 20px;">Claude Code is an AI tool you run from the terminal. It can <span style="color:#fff; font-weight:500;">read your project</span>, edit files, run commands, and help complete coding tasks.</p>
+            <p class="body-md reveal-up text-white-muted">It is basically an AI engineer that sits inside your project folders and takes instructions from you.</p>
+        </div>
+    </div>
+</section>
+
+<!-- 6. Vibe Coding: Split heavy photo -->
+<section id="sec-6" data-nav="6" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh;">
+        <div style="position: relative; min-height: 100vh;">
+            <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="creative">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
+            <div style="max-width: 520px;">
+                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">The Movement</p>
+                <h2 class="display-lg reveal-up" style="margin-bottom: 24px;">Vibe Coding:<br>Describe, Don't Type</h2>
+                <div class="panel reveal-up" style="margin-bottom: 20px;">
+                    <p class="body-lg quote-block" style="color: var(--text);">"I want a notes app that feels like writing in a beautiful notebook."</p>
+                </div>
+                <p class="body-md reveal-up">That's it. Claude figures out the files, the code, and the commands.</p>
+                <p class="body-md reveal-up" style="margin-top: 12px;">You iterate on <span class="hl">feel</span> first — colors, spacing, animations. Then function.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 7. Terminal: Photo background + floating terminal mockup -->
+<section id="sec-7" data-nav="7" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="terminal bg">
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; padding: 0 6vw; width: 100%;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5vw; align-items: center; max-width: 1200px; margin: 0 auto;">
+            <div class="terminal reveal-up">
+                <div class="terminal-dots"><div class="dot-red"></div><div class="dot-yel"></div><div class="dot-grn"></div></div>
+                <div style="color: var(--muted);">$ ls</div>
+                <div style="color: #F2F2F0;">docs  src  tests  package.json</div>
+                <div style="color: var(--muted); margin-top: 12px;">$ mkdir new-folder</div>
+                <div style="color: var(--muted);">$ npm run dev</div>
+                <div style="color: var(--accent-2); margin-top: 12px;">> Server running on localhost:3000</div>
+            </div>
+            <div>
+                <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">The Workspace</p>
+                <h2 class="display-lg reveal-up text-white" style="margin-bottom: 24px;">What is the<br>Terminal?</h2>
+                <p class="body-lg reveal-up text-white-muted">The terminal is basically a <span style="color:#fff; font-weight:500;">text-based control panel</span> for your computer. Instead of clicking buttons, you type instructions.</p>
+                <p class="body-md reveal-up text-white-muted" style="margin-top: 16px;">For non-technical folks: it looks like the Matrix, but it's just a place where you talk to your computer with text instead of a mouse.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 8. Why Terminal: Photo bottom strip -->
+<section id="sec-8" data-nav="8" style="min-height: 90vh; display: flex; flex-direction: column; justify-content: center; padding: 10vh 6vw;">
+    <div class="content" style="max-width: 900px; margin: 0 auto; text-align: center;">
+        <p class="label reveal-up" style="color: var(--accent-2); margin-bottom: 14px;">Developer Environment</p>
+        <h2 class="display-lg reveal-up" style="margin-bottom: 24px;">Why Use the Terminal?</h2>
+        <p class="body-lg reveal-up" style="margin-bottom: 28px;">The terminal is where developers already build, test, and run things. That makes it the best place for Claude Code, because it can work <span class="hl">directly</span> with files, commands, and tools in the same environment.</p>
+        <div class="panel reveal-up" style="display: inline-block; background: var(--accent-2-dim); border: 1px solid rgba(15,118,110,0.2);">
+            <p class="body-md" style="color: var(--text); max-width: 55ch;">By living in the terminal, Claude doesn't just write code in a browser window for you to copy-paste. It writes the code directly into your actual files.</p>
+        </div>
+    </div>
+    <div style="margin-top: 6vh; height: 35vh; border-radius: 24px; overflow: hidden; max-width: 1200px; width: 100%; margin-left: auto; margin-right: auto;">
+        <img src="https://images.unsplash.com/photo-1555099962-4199c345e5dd?auto=format&fit=crop&w=1600&q=80" class="img-cover" alt="code editor">
+    </div>
+</section>
+
+<!-- 9. AI Takes Action: Diagonal photo layout -->
+<section id="sec-9" data-nav="9" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
+    <div style="display: grid; grid-template-columns: 1.2fr 1fr; width: 100%; min-height: 100vh;">
+        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
+            <div style="max-width: 560px;">
+                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">The Shift</p>
+                <h2 class="display-lg reveal-up" style="margin-bottom: 28px;">AI That Takes Action</h2>
+                <p class="body-lg reveal-up" style="margin-bottom: 28px;">Normal AI gives suggestions. Claude Code can also <span class="hl">take action</span> inside your project, like editing files, checking code, and running steps for you.</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="panel reveal-up">
+                        <p class="label" style="color: var(--muted); margin-bottom: 6px;">Old</p>
+                        <p class="body-md">Prompt → Copy → Paste → Fix</p>
+                    </div>
+                    <div class="panel reveal-up" style="background: var(--accent-dim);">
+                        <p class="label" style="color: var(--accent); margin-bottom: 6px;">New</p>
+                        <p class="body-md" style="color: var(--text);">Delegate → Approve → Review</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="position: relative; min-height: 100vh;">
+            <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="action">
+        </div>
+    </div>
+</section>
+
+<!-- 10. Plan Mode: Photo grid -->
+<section id="sec-10" data-nav="10" style="min-height: 100vh; display: flex; align-items: center; padding: 10vh 6vw;">
+    <div class="content" style="max-width: 1200px; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4vw; align-items: center;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 55vh;">
+                <div style="border-radius: 20px; overflow: hidden;"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="plan"></div>
+                <div style="border-radius: 20px; overflow: hidden; margin-top: 24px;"><img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="sketch"></div>
+            </div>
+            <div>
+                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">Safety Feature</p>
+                <h2 class="display-lg reveal-up" style="margin-bottom: 24px;">Plan Mode:<br>Look Before You Leap</h2>
+                <p class="body-lg reveal-up" style="margin-bottom: 20px;">Before touching any files, Claude can show you a <span class="hl">plain-English proposal</span> — like an architect drawing blueprints before construction.</p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div class="panel reveal-up" style="padding: 16px 20px;"><p class="body-md"><strong style="color: var(--accent-2);">1.</strong> Claude proposes a step-by-step plan</p></div>
+                    <div class="panel reveal-up" style="padding: 16px 20px;"><p class="body-md"><strong style="color: var(--accent-2);">2.</strong> You review and approve</p></div>
+                    <div class="panel reveal-up" style="padding: 16px 20px;"><p class="body-md"><strong style="color: var(--accent-2);">3.</strong> Claude executes and asks for checkpoints</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 11. Build Stuff: Full photo + overlay cards -->
+<section id="sec-11" data-nav="11" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="build">
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.45);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
+        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Capabilities</p>
+        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 36px;">Build Stuff with<br>Claude Code</h2>
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px;">
+            <div class="panel reveal-up" style="text-align: center;">
+                <div style="font-size: 1.8rem; margin-bottom: 10px; color: var(--accent);"><i class="ph ph-rocket"></i></div>
+                <p class="body-md" style="color: var(--text); font-weight: 500;">Applications</p>
+            </div>
+            <div class="panel reveal-up" style="text-align: center;">
+                <div style="font-size: 1.8rem; margin-bottom: 10px; color: var(--accent-2);"><i class="ph ph-gear"></i></div>
+                <p class="body-md" style="color: var(--text); font-weight: 500;">Workflows</p>
+            </div>
+            <div class="panel reveal-up" style="text-align: center;">
+                <div style="font-size: 1.8rem; margin-bottom: 10px; color: var(--text);"><i class="ph ph-globe"></i></div>
+                <p class="body-md" style="color: var(--text); font-weight: 500;">Websites</p>
+            </div>
+            <div class="panel reveal-up" style="text-align: center;">
+                <div style="font-size: 1.8rem; margin-bottom: 10px; color: var(--accent);"><i class="ph ph-file-text"></i></div>
+                <p class="body-md" style="color: var(--text); font-weight: 500;">Documents</p>
+            </div>
+            <div class="panel reveal-up" style="text-align: center;">
+                <div style="font-size: 1.8rem; margin-bottom: 10px; color: var(--accent-2);"><i class="ph ph-robot"></i></div>
+                <p class="body-md" style="color: var(--text); font-weight: 500;">Scripts</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 12. Unexpected Uses: Horizontal scroll over photo -->
+<section id="sec-12" class="horizontal-section" data-nav="12" style="position: relative;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="surprises">
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.35);"></div>
+    </div>
+    <div style="position: relative; z-index: 2; padding: 10vh 0; min-height: 100vh; display: flex; flex-direction: column; justify-content: center;">
+        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px; margin-left: 6vw;">Surprising Use Cases</p>
+        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 40px; margin-left: 6vw;">Yes, You Can Use It for This Too</h2>
+        <div class="horizontal-wrapper" style="position: relative; height: 55vh;">
+            <div class="horizontal-track" id="horizontalTrack" style="display: flex; gap: 24px; padding: 0 6vw; width: max-content;">
+                <div class="panel reveal-up" style="width: 340px; flex-shrink: 0; border-radius: 20px;">
+                    <div style="height: 180px; border-radius: 12px; overflow: hidden; margin-bottom: 16px;">
+                        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="wedding">
+                    </div>
+                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 6px; color: var(--accent);">Wedding planning</h4>
+                    <p class="body-md">RSVPs, seating charts, vendor budgets.</p>
+                </div>
+                <div class="panel reveal-up" style="width: 340px; flex-shrink: 0; border-radius: 20px;">
+                    <div style="height: 180px; border-radius: 12px; overflow: hidden; margin-bottom: 16px;">
+                        <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="tax">
+                    </div>
+                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 6px; color: var(--accent-2);">Tax organizer</h4>
+                    <p class="body-md">Searches Gmail, extracts figures, builds overviews.</p>
+                </div>
+                <div class="panel reveal-up" style="width: 340px; flex-shrink: 0; border-radius: 20px;">
+                    <div style="height: 180px; border-radius: 12px; overflow: hidden; margin-bottom: 16px;">
+                        <img src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="running">
+                    </div>
+                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 6px; color: var(--text);">Marathon training</h4>
+                    <p class="body-md">Plans from fitness tracker data and race nutrition.</p>
+                </div>
+                <div class="panel reveal-up" style="width: 340px; flex-shrink: 0; border-radius: 20px;">
+                    <div style="height: 180px; border-radius: 12px; overflow: hidden; margin-bottom: 16px;">
+                        <img src="https://images.unsplash.com/photo-1500051638674-ff996a0ec29e?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="photos">
+                    </div>
+                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 6px; color: var(--accent);">Photo books</h4>
+                    <p class="body-md">Sorts by date and location, creates layouts.</p>
+                </div>
+                <div class="panel reveal-up" style="width: 340px; flex-shrink: 0; border-radius: 20px;">
+                    <div style="height: 180px; border-radius: 12px; overflow: hidden; margin-bottom: 16px;">
+                        <img src="https://images.unsplash.com/photo-1530533718754-001d2668365a?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="recovery">
+                    </div>
+                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 6px; color: var(--accent-2);">File recovery</h4>
+                    <p class="body-md">The viral 512 GB wedding video recovery story.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 13. Keeping It Safe: Full photo + quote -->
+<section id="sec-13" data-nav="13" style="min-height: 80vh; display: flex; align-items: center; padding: 0; position: relative;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="security">
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%; text-align: center;">
+        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Security</p>
+        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 24px;">Keeping It Safe</h2>
+        <div class="panel reveal-up" style="display: inline-block; max-width: 700px; text-align: left;">
+            <p class="body-lg" style="margin-bottom: 16px;">Claude Code is not magic access to your whole computer. It usually works within your permissions and workspace rules, and sandboxing can restrict what it can change outside the current directory.</p>
+            <p class="body-md" style="color: var(--text); font-weight: 500;">Don't worry that it's going to delete your operating system. It works on the folder you put it in.</p>
+        </div>
+    </div>
+</section>
+
+<!-- 14. Checkpoints: Split with image -->
+<section id="sec-14" data-nav="14" style="min-height: 90vh; display: flex; align-items: center; padding: 0;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 90vh;">
+        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
+            <div style="max-width: 480px; text-align: center;">
+                <p class="label reveal-up" style="color: var(--accent-2); margin-bottom: 14px;">Safety Net</p>
+                <h2 class="display-lg reveal-up" style="margin-bottom: 20px;">Checkpoints:<br>Your Undo Button</h2>
+                <p class="body-lg reveal-up" style="margin-bottom: 24px;">Before big changes, Claude saves a <span class="hl">checkpoint</span>. If something goes wrong, you can rewind instantly.</p>
+                <div class="panel reveal-up" style="background: var(--accent-2-dim); border: 1px solid rgba(15,118,110,0.2);">
+                    <p class="body-md" style="color: var(--text);">Think of it like a save point in a video game. No Git expertise required.</p>
+                </div>
+            </div>
+        </div>
+        <div style="position: relative; min-height: 90vh;">
+            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="checkpoint">
+        </div>
+    </div>
+</section>
+
+<!-- 15. The Honest Truth: 4 images + 4 points -->
+<section id="sec-15" data-nav="15" style="min-height: 100vh; display: flex; align-items: center; padding: 10vh 6vw;">
+    <div class="content" style="max-width: 1200px; margin: 0 auto;">
+        <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px; text-align: center;">Reality Check</p>
+        <h2 class="display-lg reveal-up" style="margin-bottom: 36px; text-align: center;">The Honest Truth</h2>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 36px;">
+            <div style="border-radius: 16px; overflow: hidden; height: 28vh;"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="warning"></div>
+            <div style="border-radius: 16px; overflow: hidden; height: 28vh; margin-top: 20px;"><img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="clean"></div>
+            <div style="border-radius: 16px; overflow: hidden; height: 28vh;"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="restart"></div>
+            <div style="border-radius: 16px; overflow: hidden; height: 28vh; margin-top: 20px;"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="verify"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+            <div class="panel reveal-up">
+                <p class="body-md" style="color: var(--text);"><span class="hl">CLAUDE.md hints fade over time.</span> Long sessions = fading memory. Keep your brain file to ~1 page.</p>
+            </div>
+            <div class="panel reveal-up">
+                <p class="body-md" style="color: var(--text);"><span class="hl">Use <code style="font-family: var(--font-mono);">/clear</code> between unrelated tasks.</span> It's the single highest-ROI habit.</p>
+            </div>
+            <div class="panel reveal-up">
+                <p class="body-md" style="color: var(--text);"><span class="hl">After two failed corrections, start fresh.</span> A clean prompt beats arguing in circles.</p>
+            </div>
+            <div class="panel reveal-up" style="background: var(--accent-dim);">
+                <p class="body-md" style="color: var(--text);"><span class="hl">Always verify the work.</span> Claude is enthusiastic, fast, and occasionally wrong.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 16. How It Actually Works: Timeline over image -->
+<section id="sec-16" data-nav="16" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="workflow">
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
+        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">The Loop</p>
+        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 32px;">How It Actually Works</h2>
+        <div style="display: flex; flex-direction: column; gap: 14px; max-width: 850px;">
+            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 16px; background: rgba(255,255,255,0.95);">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">1</div>
+                <p class="body-md" style="color: var(--text);"><strong>Open a project.</strong> Navigate to your folder in the terminal.</p>
+            </div>
+            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 16px; background: rgba(255,255,255,0.95);">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">2</div>
+                <p class="body-md" style="color: var(--text);"><strong>Claude scans files.</strong> It reads the structure to understand what it's working with.</p>
+            </div>
+            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 16px; background: rgba(255,255,255,0.95);">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">3</div>
+                <p class="body-md" style="color: var(--text);"><strong>You tell it the goal.</strong> Describe what you want built or fixed.</p>
+            </div>
+            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 16px; background: rgba(255,255,255,0.95);">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">4</div>
+                <p class="body-md" style="color: var(--text);"><strong>Claude takes action.</strong> It edits files, runs commands, and asks for your approval.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 17. Setup: Full photo left, content right -->
+<section id="sec-17" data-nav="17" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh;">
+        <div style="position: relative; min-height: 100vh;">
+            <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="setup">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
+            <div style="max-width: 520px;">
+                <p class="label reveal-up" style="color: var(--accent-2); margin-bottom: 14px;">Quick Start</p>
+                <h2 class="display-lg reveal-up" style="margin-bottom: 24px;">Setup in<br>60 Seconds</h2>
+                <p class="body-lg reveal-up" style="margin-bottom: 24px;">You install Claude Code on your computer and run it through the terminal. Once it is set up, it can work with files and commands in your project workspace.</p>
+                <div class="terminal reveal-up" style="margin-bottom: 20px;">
+                    <div class="terminal-dots"><div class="dot-red"></div><div class="dot-yel"></div><div class="dot-grn"></div></div>
+                    <div style="color: var(--muted);">$ npm install -g @anthropic-ai/claude-code</div>
+                    <div style="color: var(--muted); margin-top: 8px;">$ cd any-project-folder</div>
+                    <div style="color: var(--muted); margin-top: 8px;">$ claude</div>
+                    <div style="color: var(--accent-2); margin-top: 8px;">> Ready to work.</div>
+                </div>
+                <p class="body-md reveal-up" style="color: var(--accent-2);">It installs globally — open any folder, type 'claude', and wake it up.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 18. What It Costs: 3 cards over photo -->
+<section id="sec-18" data-nav="18" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="money">
+        <div style="position: absolute; inset: 0; background: rgba(245,243,239,0.88);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
+        <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px; text-align: center;">Pricing</p>
+        <h2 class="display-lg reveal-up" style="margin-bottom: 36px; text-align: center;">What It Costs</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1000px; margin: 0 auto;">
+            <div class="panel reveal-up" style="text-align: center;">
+                <p class="label" style="color: var(--muted); margin-bottom: 8px;">Pro</p>
+                <h3 class="display-md" style="font-size: 2.2rem; margin-bottom: 8px; color: var(--text);">~$20/mo</h3>
+                <p class="body-md">Good for experimenting. Includes Claude Code with usage limits.</p>
+            </div>
+            <div class="panel reveal-up" style="text-align: center; background: var(--accent-dim); border: 1px solid rgba(217,78,31,0.2);">
+                <p class="label" style="color: var(--accent); margin-bottom: 8px;">Max</p>
+                <h3 class="display-md" style="font-size: 2.2rem; margin-bottom: 8px; color: var(--accent);">$100–$200/mo</h3>
+                <p class="body-md" style="color: var(--text);">For building seriously, running subagents, and daily heavy use.</p>
+            </div>
+            <div class="panel reveal-up" style="text-align: center; background: var(--accent-2-dim); border: 1px solid rgba(15,118,110,0.2);">
+                <p class="label" style="color: var(--accent-2); margin-bottom: 8px;">Psychology</p>
+                <h3 class="display-md" style="font-size: 1.4rem; margin-bottom: 8px; color: var(--accent-2);">Flat-Rate Freedom</h3>
+                <p class="body-md">When you're not watching a meter run, you're more willing to delegate big tasks.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 19. Rules: Photo grid left, cards right -->
+<section id="sec-19" data-nav="19" style="min-height: 100vh; display: flex; align-items: center; padding: 10vh 6vw;">
+    <div class="content" style="max-width: 1200px; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: 1fr 1.1fr; gap: 4vw; align-items: center;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 55vh;">
+                <div style="border-radius: 20px; overflow: hidden;"><img src="https://images.unsplash.com/photo-1456324504439-367cee13d656?auto=format&fit=crop&w=500&q=80" class="img-cover" alt="notes"></div>
+                <div style="border-radius: 20px; overflow: hidden; margin-top: 30px;"><img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=500&q=80" class="img-cover" alt="rules"></div>
+            </div>
+            <div>
+                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">Configuration</p>
+                <h2 class="display-lg reveal-up" style="margin-bottom: 24px;">Personal Rules vs.<br>Project Rules</h2>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="panel reveal-up" style="background: var(--accent-2-dim); border: 1px solid rgba(15,118,110,0.15);">
+                        <p class="label" style="color: var(--accent-2); margin-bottom: 6px;">Global — ~/.claude.md</p>
+                        <p class="body-md" style="color: var(--text);">Your personal defaults. Think of it as a <span class="hl">brain file</span>. Keep it to ~1 page.</p>
+                    </div>
+                    <div class="panel reveal-up" style="background: var(--accent-dim); border: 1px solid rgba(217,78,31,0.15);">
+                        <p class="label" style="color: var(--accent); margin-bottom: 6px;">Project — /project-folder/CLAUDE.md</p>
+                        <p class="body-md" style="color: var(--text);">Instructions for one specific project so Claude follows the right rules.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 20. Skills: Full-bleed image right -->
+<section id="sec-20" data-nav="20" style="min-height: 90vh; display: flex; align-items: center; padding: 0;">
+    <div style="display: grid; grid-template-columns: 1.1fr 1fr; width: 100%; min-height: 90vh;">
+        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
+            <div style="max-width: 520px;">
+                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">Power Feature</p>
+                <h2 class="display-lg reveal-up" style="margin-bottom: 20px;">Working with<br>Skills</h2>
+                <p class="body-lg reveal-up" style="margin-bottom: 20px;">Skills are like <span class="hl">reusable playbooks</span>. Instead of explaining the same workflow again and again, you give Claude a repeatable method for certain tasks.</p>
+                <div class="panel reveal-up">
+                    <p class="body-md" style="color: var(--text);">If you do the same SEO audit or code-formatting task every week, save it as a Skill so Claude runs the playbook perfectly every time.</p>
+                </div>
+            </div>
+        </div>
+        <div style="position: relative; min-height: 90vh;">
+            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="skills">
+        </div>
+    </div>
+</section>
+
+<!-- 21. /init: Big type over photo -->
+<section id="sec-21" data-nav="21" style="min-height: 80vh; display: flex; align-items: center; padding: 0; position: relative;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="magic">
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.45);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%; text-align: center;">
+        <p class="label reveal-up text-white-muted" style="margin-bottom: 12px;">The Magic Command</p>
+        <h2 class="display-xl reveal-up text-white" style="font-size: clamp(5rem, 14vw, 10rem); margin-bottom: 20px;">/init</h2>
+        <div class="panel reveal-up" style="display: inline-block; max-width: 650px; text-align: left;">
+            <p class="body-lg" style="margin-bottom: 14px;">Run <span style="font-family: var(--font-mono); color: var(--text); font-weight: 500;">/init</span> once the project has some real files in it. Claude will scan your workspace and create a project cheat sheet.</p>
+            <p class="body-md" style="color: var(--text); font-weight: 500; border-left: 3px solid var(--accent); padding-left: 14px;">Pro Tip: Avoid running it on a totally empty folder! Give Claude some files or boilerplate code to read first.</p>
+        </div>
+        <p class="body-md reveal-up text-white-muted" style="margin-top: 16px;">Pair it with a <span style="font-family: var(--font-mono); color: #fff;">CLAUDE.md</span> brain file for best results.</p>
+    </div>
+</section>
+
+<!-- 22. How to Talk: Photo top strip -->
+<section id="sec-22" data-nav="22" style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 10vh 6vw;">
+    <div style="height: 30vh; border-radius: 24px; overflow: hidden; max-width: 1200px; width: 100%; margin: 0 auto 6vh;">
+        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=1600&q=80" class="img-cover" alt="communication">
+    </div>
+    <div class="content" style="max-width: 1000px; margin: 0 auto;">
+        <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px; text-align: center;">Better Prompting</p>
+        <h2 class="display-lg reveal-up" style="margin-bottom: 28px; text-align: center;">How to Talk to Claude Code</h2>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+            <div class="panel reveal-up" style="text-align: center;">
+                <p class="display-md" style="color: var(--accent); font-size: 1.6rem; margin-bottom: 8px;">1</p>
+                <p class="body-md" style="color: var(--text); font-weight: 500;">The goal</p>
+                <p class="body-md" style="font-size: 0.85rem;">What you want done</p>
+            </div>
+            <div class="panel reveal-up" style="text-align: center;">
+                <p class="display-md" style="color: var(--accent); font-size: 1.6rem; margin-bottom: 8px;">2</p>
+                <p class="body-md" style="color: var(--text); font-weight: 500;">The context</p>
+                <p class="body-md" style="font-size: 0.85rem;">Which files matter</p>
+            </div>
+            <div class="panel reveal-up" style="text-align: center;">
+                <p class="display-md" style="color: var(--accent); font-size: 1.6rem; margin-bottom: 8px;">3</p>
+                <p class="body-md" style="color: var(--text); font-weight: 500;">The limits</p>
+                <p class="body-md" style="font-size: 0.85rem;">What not to change</p>
+            </div>
+            <div class="panel reveal-up" style="text-align: center;">
+                <p class="display-md" style="color: var(--accent); font-size: 1.6rem; margin-bottom: 8px;">4</p>
+                <p class="body-md" style="color: var(--text); font-weight: 500;">Success</p>
+                <p class="body-md" style="font-size: 0.85rem;">What it should look like</p>
+            </div>
+        </div>
+        <p class="body-md reveal-up" style="text-align: center; margin-top: 24px; color: var(--accent);">Don't just say "make it better." Say exactly what, where, and how.</p>
+    </div>
+</section>
+
+<!-- 23. Developer Case Study: Full photo + floating card -->
+<section id="sec-23" data-nav="23" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="developer">
+        <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; padding: 0 6vw; width: 100%;">
+        <div style="max-width: 620px;">
+            <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Case Study</p>
+            <h2 class="display-lg reveal-up text-white" style="margin-bottom: 20px;">The Developer</h2>
+            <div class="panel reveal-up">
+                <p class="body-lg" style="margin-bottom: 12px;">A developer opens a new project and asks Claude Code to explain the codebase, find a bug, fix it, and show what changed.</p>
+                <p class="body-md" style="color: var(--text); font-weight: 500;">Classic use case: it removes the friction of learning a new repository.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 24. Marketer Case Study: Photo right -->
+<section id="sec-24" data-nav="24" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh;">
+        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
+            <div style="max-width: 520px;">
+                <p class="label reveal-up" style="color: var(--accent-2); margin-bottom: 14px;">Case Study</p>
+                <h2 class="display-lg reveal-up" style="margin-bottom: 20px;">The Marketer</h2>
+                <p class="body-lg reveal-up" style="margin-bottom: 20px;">Anthropic has said even internal Marketing and Data teams were drawn to this style of multi-step execution.</p>
+                <div class="panel reveal-up" style="background: var(--accent-2-dim); border: 1px solid rgba(15,118,110,0.15);">
+                    <p class="body-md" style="color: var(--text); font-weight: 500;">You don't have to be a software engineer to benefit from agentic workflows.</p>
+                </div>
+            </div>
+        </div>
+        <div style="position: relative; min-height: 100vh;">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="marketer">
+        </div>
+    </div>
+</section>
+
+<!-- 25. Live Demo: 4 photos + steps -->
+<section id="sec-25" data-nav="25" style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 10vh 6vw;">
+    <div class="content" style="max-width: 1200px; margin: 0 auto;">
+        <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px; text-align: center;">Hands On</p>
+        <h2 class="display-lg reveal-up" style="margin-bottom: 28px; text-align: center;">Let's Try It (Live Demo)</h2>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 32px;">
+            <div style="border-radius: 16px; overflow: hidden; height: 22vh;"><img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="open"></div>
+            <div style="border-radius: 16px; overflow: hidden; height: 22vh; margin-top: 16px;"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="scan"></div>
+            <div style="border-radius: 16px; overflow: hidden; height: 22vh;"><img src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="explain"></div>
+            <div style="border-radius: 16px; overflow: hidden; height: 22vh; margin-top: 16px;"><img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="task"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; max-width: 800px; margin: 0 auto;">
+            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">1</div>
+                <p class="body-md" style="color: var(--text);">Open a folder.</p>
+            </div>
+            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">2</div>
+                <p class="body-md" style="color: var(--text);">Ask Claude what is inside.</p>
+            </div>
+            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">3</div>
+                <p class="body-md" style="color: var(--text);">Ask it to explain the project.</p>
+            </div>
+            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">4</div>
+                <p class="body-md" style="color: var(--text);">Give it one small task and review.</p>
+            </div>
+        </div>
+        <p class="body-md reveal-up" style="text-align: center; margin-top: 24px; color: var(--accent);">Switch to terminal screen</p>
+    </div>
+</section>
+
+<!-- 26. Find Your First Win: Full photo -->
+<section id="sec-26" data-nav="26" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="win">
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.45);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
+        <div style="max-width: 750px;">
+            <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Action Step</p>
+            <h2 class="display-lg reveal-up text-white" style="margin-bottom: 20px;">Find Your First Win</h2>
+            <div class="panel reveal-up" style="margin-bottom: 16px;">
+                <p class="body-lg" style="margin-bottom: 12px;">Instead of asking <span style="font-weight: 500;">"what should I build?"</span>, ask <span style="font-weight: 500;">"what do I hate doing manually?"</span></p>
+                <ul class="body-md" style="list-style: none; display: flex; flex-direction: column; gap: 5px;">
+                    <li>Triaging unread emails</li>
+                    <li>Copy-pasting data between spreadsheets</li>
+                    <li>Renaming hundreds of files</li>
+                </ul>
+            </div>
+            <p class="body-md reveal-up text-white-muted">Pick one. Automate it this weekend. Start small, stack wins.</p>
+        </div>
+    </div>
+</section>
+
+<!-- 27. You Are Still the Boss: Photo left -->
+<section id="sec-27" data-nav="27" style="min-height: 90vh; display: flex; align-items: center; padding: 0;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 90vh;">
+        <div style="position: relative; min-height: 90vh;">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="boss">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
+            <div style="max-width: 480px;">
+                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">Control</p>
+                <h2 class="display-lg reveal-up" style="margin-bottom: 20px;">You Are Still<br>the Boss</h2>
+                <p class="body-lg reveal-up" style="margin-bottom: 20px;">Claude can move fast, but you still stay in control. The best results usually happen when you review the work, give feedback, and guide it as needed.</p>
+                <div class="panel reveal-up" style="background: var(--accent-dim); border: 1px solid rgba(217,78,31,0.15);">
+                    <p class="body-md" style="color: var(--text); font-weight: 500;">It's an assistant, not an autopilot.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 28. Mental Model: Full photo centered -->
+<section id="sec-28" data-nav="28" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="mental model">
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%; text-align: center;">
+        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Final Takeaway</p>
+        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 32px;">The Mental Model</h2>
+        <div style="display: flex; flex-direction: column; gap: 12px; max-width: 800px; margin: 0 auto;">
+            <div class="panel reveal-up" style="display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background: var(--accent-2-dim); display: flex; align-items: center; justify-content: center; color: var(--accent-2); font-size: 1.4rem;"><i class="ph ph-brain"></i></div>
+                    <h4 class="display-md" style="font-size: 1.2rem; color: var(--text);">Claude.ai</h4>
+                </div>
+                <p class="body-md" style="color: var(--muted);">Helps you think.</p>
+            </div>
+            <div class="panel reveal-up" style="display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; color: var(--text); font-size: 1.4rem;"><i class="ph ph-files"></i></div>
+                    <h4 class="display-md" style="font-size: 1.2rem; color: var(--text);">Claude Cowork</h4>
+                </div>
+                <p class="body-md" style="color: var(--muted);">Helps you delegate desktop work.</p>
+            </div>
+            <div class="panel reveal-up" style="display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.4rem;"><i class="ph ph-terminal"></i></div>
+                    <h4 class="display-md" style="font-size: 1.2rem; color: var(--text);">Claude Code</h4>
+                </div>
+                <p class="body-md" style="color: var(--muted);">Helps you delegate technical work from the terminal.</p>
+            </div>
+        </div>
+        <p class="body-md reveal-up text-white-muted" style="margin-top: 36px;">If you remember one thing from today, remember this.</p>
+    </div>
+</section>
+
+<!-- Footer -->
+<section style="min-height: 35vh; display: flex; align-items: center; justify-content: center; background: var(--surface-warm); border-top: 1px solid var(--border);">
+    <div style="text-align: center;">
+        <p class="display-md" style="margin-bottom: 10px;">Thanks for scrolling.</p>
+        <p class="body-md" style="color: var(--muted);">Now go build something.</p>
+    </div>
+</section>
+
+<script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Progress bar
+    const progressFill = document.getElementById('progressFill');
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        progressFill.style.height = (scrollTop / docHeight) * 100 + '%';
+    });
+
+    // Nav dots
+    const sections = document.querySelectorAll('section[data-nav]');
+    const navDotsContainer = document.getElementById('navDots');
+    sections.forEach((sec, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+        dot.onclick = () => sec.scrollIntoView({ behavior: 'smooth' });
+        navDotsContainer.appendChild(dot);
+    });
+
+    const navDots = document.querySelectorAll('.nav-dot');
+    window.addEventListener('scroll', () => {
+        let current = 0;
+        sections.forEach((sec, i) => {
+            const rect = sec.getBoundingClientRect();
+            if (rect.top <= window.innerHeight / 2) current = i;
+        });
+        navDots.forEach((d, i) => d.classList.toggle('active', i === current));
+    });
+
+    // Reveal animations
+    sections.forEach((sec) => {
+        const reveals = sec.querySelectorAll('.reveal-up');
+        if (reveals.length) {
+            gsap.fromTo(reveals, 
+                { opacity: 0, y: 50 },
+                {
+                    opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power2.out',
+                    scrollTrigger: { trigger: sec, start: 'top 75%', toggleActions: 'play none none reverse' }
+                }
+            );
+        }
+    });
+
+    // Image parallax inside sections
+    document.querySelectorAll('section img.img-cover').forEach((img) => {
+        if (img.closest('.horizontal-track') || img.closest('.panel')) return;
+        gsap.to(img, {
+            yPercent: 12, ease: 'none',
+            scrollTrigger: { trigger: img.closest('section'), start: 'top bottom', end: 'bottom top', scrub: true }
+        });
+    });
+
+    // Horizontal scroll
+    const horizontalSection = document.querySelector('.horizontal-section');
+    const horizontalTrack = document.getElementById('horizontalTrack');
+    if (horizontalSection && horizontalTrack) {
+        const scrollWidth = horizontalTrack.scrollWidth - window.innerWidth + 200;
+        gsap.to(horizontalTrack, {
+            x: -scrollWidth, ease: 'none',
+            scrollTrigger: { trigger: horizontalSection, start: 'top top', end: () => `+=${scrollWidth}`, scrub: 1, pin: true, anticipatePin: 1 }
+        });
+    }
+</script>
+</body>
+</html>

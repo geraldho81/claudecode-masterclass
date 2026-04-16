@@ -327,6 +327,39 @@
     </div>
 </section>
 
+<!-- NEW: Prerequisites -->
+<section id="sec-prereq" data-nav="prereq" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh;">
+        <div style="position: relative; min-height: 100vh;">
+            <img src="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="prerequisites">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
+            <div style="max-width: 520px;">
+                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">Before You Start</p>
+                <h2 class="display-lg reveal-up" style="margin-bottom: 24px;">What You Actually Need</h2>
+                <p class="body-lg reveal-up" style="margin-bottom: 24px;">Before running a single command, make sure you have these in place.</p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="panel reveal-up" style="display: flex; align-items: flex-start; gap: 14px;">
+                        <div style="min-width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">1</div>
+                        <p class="body-md" style="color: var(--text);"><strong>An Anthropic account</strong> — claude.ai Pro or Max. Claude Code is not available on the free plan.</p>
+                    </div>
+                    <div class="panel reveal-up" style="display: flex; align-items: flex-start; gap: 14px;">
+                        <div style="min-width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">2</div>
+                        <p class="body-md" style="color: var(--text);"><strong>Node.js and npm installed</strong> — the engine Claude Code runs on. Download from nodejs.org if you don't have it.</p>
+                    </div>
+                    <div class="panel reveal-up" style="display: flex; align-items: flex-start; gap: 14px;">
+                        <div style="min-width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">3</div>
+                        <p class="body-md" style="color: var(--text);"><strong>A project folder</strong> — Claude Code works best when it has real files to read. Don't point it at an empty desktop.</p>
+                    </div>
+                    <div class="panel reveal-up" style="background: var(--accent-dim);">
+                        <p class="body-md" style="color: var(--text);">Windows users: install WSL (Windows Subsystem for Linux) first. It makes everything smoother.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- 17. Setup: Full photo left, content right -->
 <section id="sec-17" data-nav="17" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
     <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh;">
@@ -348,6 +381,33 @@
                 <p class="body-md reveal-up" style="color: var(--text);">Mac users: usually smooth. Windows users: expect some friction. It's worth it once it's done.</p>
             </div>
         </div>
+    </div>
+</section>
+
+<!-- NEW: Context Management -->
+<section id="sec-context" data-nav="context" style="min-height: 90vh; display: flex; align-items: center; padding: 0; position: relative;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="context">
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.52);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
+        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Session Hygiene</p>
+        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 32px;">Managing Your Context</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1100px;">
+            <div class="panel reveal-up">
+                <p class="display-md" style="font-family: var(--font-mono); color: var(--accent); font-size: 1.4rem; margin-bottom: 10px;">/clear</p>
+                <p class="body-md" style="color: var(--text);">Wipes the conversation history without closing Claude. Use it between unrelated tasks — it's the highest-ROI habit you can build.</p>
+            </div>
+            <div class="panel reveal-up">
+                <p class="display-md" style="font-family: var(--font-mono); color: var(--accent); font-size: 1.4rem; margin-bottom: 10px;">/compact</p>
+                <p class="body-md" style="color: var(--text);">Summarises the conversation so far to free up context space. Use this mid-session when you want to keep going without starting over.</p>
+            </div>
+            <div class="panel reveal-up" style="background: var(--accent-dim);">
+                <p class="display-md" style="color: var(--accent); font-size: 1.1rem; font-weight: 600; margin-bottom: 10px;">Fresh Session</p>
+                <p class="body-md" style="color: var(--text);">After two failed corrections, just start a new session. Give Claude a one-paragraph recap. A clean start beats a broken conversation every time.</p>
+            </div>
+        </div>
+        <p class="body-md reveal-up text-white-muted" style="margin-top: 28px; max-width: 700px;">Think of context like RAM. The more you load in, the slower and fuzzier things get. Keep sessions focused and short.</p>
     </div>
 </section>
 
@@ -466,6 +526,74 @@
         <div style="position: relative; min-height: 90vh;">
             <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="skills">
         </div>
+    </div>
+</section>
+
+<!-- NEW: MCP -->
+<section id="sec-mcp" data-nav="mcp" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
+    <div style="display: grid; grid-template-columns: 1.1fr 1fr; width: 100%; min-height: 100vh;">
+        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
+            <div style="max-width: 540px;">
+                <p class="label reveal-up" style="color: var(--accent-2); margin-bottom: 14px;">Superpower</p>
+                <h2 class="display-lg reveal-up" style="margin-bottom: 20px;">MCP: Connect Claude to Everything</h2>
+                <p class="body-lg reveal-up" style="margin-bottom: 24px;">MCP (Model Context Protocol) lets Claude Code plug into external tools and services. Instead of working only with local files, it can reach out to the world.</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="panel reveal-up" style="text-align: center; padding: 14px;">
+                        <p class="body-md" style="font-weight: 600; color: var(--accent-2);">Gmail &amp; Calendar</p>
+                        <p class="body-md" style="font-size: 0.85rem;">Read, draft, and send.</p>
+                    </div>
+                    <div class="panel reveal-up" style="text-align: center; padding: 14px;">
+                        <p class="body-md" style="font-weight: 600; color: var(--accent-2);">Web Browse</p>
+                        <p class="body-md" style="font-size: 0.85rem;">Research while it works.</p>
+                    </div>
+                    <div class="panel reveal-up" style="text-align: center; padding: 14px;">
+                        <p class="body-md" style="font-weight: 600; color: var(--accent-2);">Slack &amp; Notion</p>
+                        <p class="body-md" style="font-size: 0.85rem;">Post, read, and update.</p>
+                    </div>
+                    <div class="panel reveal-up" style="text-align: center; padding: 14px;">
+                        <p class="body-md" style="font-weight: 600; color: var(--accent-2);">Databases &amp; APIs</p>
+                        <p class="body-md" style="font-size: 0.85rem;">Query and write directly.</p>
+                    </div>
+                </div>
+                <div class="panel reveal-up" style="margin-top: 14px; background: var(--accent-2-dim); border: 1px solid rgba(15,118,110,0.2);">
+                    <p class="body-md" style="color: var(--text);">MCP servers are installed once and available every session. The community is building new ones daily.</p>
+                </div>
+            </div>
+        </div>
+        <div style="position: relative; min-height: 100vh;">
+            <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="connections">
+        </div>
+    </div>
+</section>
+
+<!-- NEW: Subagents -->
+<section id="sec-subagents" data-nav="subagents" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
+    <div style="position: absolute; inset: 0; z-index: 0;">
+        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="subagents">
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.48);"></div>
+    </div>
+    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
+        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Max Plan</p>
+        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 20px;">Subagents: Many Claudes, One Goal</h2>
+        <p class="body-lg reveal-up text-white-muted" style="margin-bottom: 32px; max-width: 680px;">On the Max plan, Claude Code can spin up multiple agents working in parallel. Each one tackles a different part of the problem simultaneously.</p>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1000px;">
+            <div class="panel reveal-up" style="text-align: center;">
+                <p class="display-md" style="color: var(--accent); font-size: 2rem; margin-bottom: 10px;">Agent 1</p>
+                <p class="body-md" style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Research</p>
+                <p class="body-md" style="font-size: 0.85rem;">Scrapes the web, reads docs, pulls data.</p>
+            </div>
+            <div class="panel reveal-up" style="text-align: center;">
+                <p class="display-md" style="color: var(--accent); font-size: 2rem; margin-bottom: 10px;">Agent 2</p>
+                <p class="body-md" style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Build</p>
+                <p class="body-md" style="font-size: 0.85rem;">Writes code, edits files, runs commands.</p>
+            </div>
+            <div class="panel reveal-up" style="text-align: center;">
+                <p class="display-md" style="color: var(--accent); font-size: 2rem; margin-bottom: 10px;">Agent 3</p>
+                <p class="body-md" style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Review</p>
+                <p class="body-md" style="font-size: 0.85rem;">Tests the output and checks for errors.</p>
+            </div>
+        </div>
+        <p class="body-md reveal-up text-white-muted" style="margin-top: 28px;">This is why the Max plan exists. One Claude is powerful. Three working together is a different category of tool.</p>
     </div>
 </section>
 
@@ -679,6 +807,35 @@
             </div>
             <div class="panel reveal-up" style="grid-column: 1 / -1;">
                 <p class="body-md" style="color: var(--text);"><span class="hl">Tokens burn fast.</span> Intensive work like coding can drain your token limit quickly, especially on the Pro plan. Always plan your task before you start, not halfway through.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- NEW: When Things Go Wrong -->
+<section id="sec-troubleshoot" data-nav="troubleshoot" style="min-height: 100vh; display: flex; align-items: center; padding: 10vh 6vw;">
+    <div class="content" style="max-width: 1100px; margin: 0 auto;">
+        <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px; text-align: center;">Troubleshooting</p>
+        <h2 class="display-lg reveal-up" style="margin-bottom: 36px; text-align: center;">When Things Go Wrong</h2>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+            <div class="panel reveal-up">
+                <p class="body-md" style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Claude is going in circles</p>
+                <p class="body-md">Stop it. Type <span style="font-family: var(--font-mono); color: var(--accent);">/clear</span> and restate the goal more simply. Arguing with a looping Claude wastes tokens and makes it worse.</p>
+            </div>
+            <div class="panel reveal-up">
+                <p class="body-md" style="color: var(--text); font-weight: 600; margin-bottom: 6px;">It edited the wrong file</p>
+                <p class="body-md">Check your checkpoints and revert. Then be more specific: tell Claude exactly which file to touch and which to leave alone. Name the files explicitly.</p>
+            </div>
+            <div class="panel reveal-up">
+                <p class="body-md" style="color: var(--text); font-weight: 600; margin-bottom: 6px;">It confidently made something up</p>
+                <p class="body-md">Claude can hallucinate file names, function names, or steps that don't exist. Always verify output. If something looks wrong, it probably is — ask Claude to double-check its own work.</p>
+            </div>
+            <div class="panel reveal-up">
+                <p class="body-md" style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Nothing is working and you don't know why</p>
+                <p class="body-md">Start a fresh session. Paste in a one-paragraph summary of what you were doing and what broke. Fresh context fixes more problems than you'd expect.</p>
+            </div>
+            <div class="panel reveal-up" style="grid-column: 1 / -1; background: var(--accent-dim);">
+                <p class="body-md" style="color: var(--text);"><span class="hl">The golden rule:</span> if Claude has failed the same task twice, don't try a third time the same way. Change your approach, simplify the ask, or break it into smaller steps.</p>
             </div>
         </div>
     </div>

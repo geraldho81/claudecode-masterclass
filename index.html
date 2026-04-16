@@ -9,27 +9,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23D94E1F'/%3E%3Cpath d='M35 35 L55 50 L35 65' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='55' y1='65' x2='75' y2='65' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E">
     <style>
+        /* ── Design tokens ─────────────────────────── */
         :root {
-            --bg: #F4F2ED;
-            --surface: #FFFFFF;
-            --surface-warm: #E8E3DA;
-            --border: rgba(0,0,0,0.07);
-            --accent: #C94418;
-            --accent-dim: rgba(201,68,24,0.09);
-            --accent-2: #0D6B63;
-            --accent-2-dim: rgba(13,107,99,0.09);
-            --text: #141414;
-            --muted: #555555;
-            --font-display: 'Outfit', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
+            --bg:          #F5F3EE;
+            --bg-alt:      #FFFFFF;
+            --surface:     #FFFFFF;
+            --surface-warm:#EAE7DF;
+            --dark:        #0B0B0B;
+            --dark-2:      #141414;
+            --border:      rgba(0,0,0,0.08);
+            --border-dark: rgba(255,255,255,0.09);
+            --accent:      #D4481C;
+            --accent-dim:  rgba(212,72,28,0.10);
+            --accent-2:    #0B7168;
+            --accent-2-dim:rgba(11,113,104,0.10);
+            --text:        #0A0A0A;
+            --muted:       #595959;
+            --font-display:'Plus Jakarta Sans', sans-serif;
+            --font-mono:   'JetBrains Mono', monospace;
+            --radius-sm:   8px;
+            --radius-md:   14px;
+            --radius-lg:   20px;
         }
 
+        /* ── Reset ──────────────────────────────────── */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
-
         body {
             background: var(--bg);
             color: var(--text);
@@ -38,140 +46,244 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-
         ::selection { background: var(--accent-dim); color: var(--text); }
 
-        /* Typography */
-        .display-xl { font-size: clamp(3.2rem, 9vw, 8rem); line-height: 0.92; font-weight: 800; letter-spacing: -0.03em; }
-        .display-lg { font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.02; font-weight: 700; letter-spacing: -0.025em; }
-        .display-md { font-size: clamp(1.2rem, 2.2vw, 1.6rem); line-height: 1.25; font-weight: 600; letter-spacing: -0.01em; }
-        .body-lg { font-size: clamp(1.1rem, 1.6vw, 1.35rem); line-height: 1.7; color: var(--muted); font-weight: 400; }
-        .body-md { font-size: clamp(0.95rem, 1.2vw, 1.05rem); line-height: 1.65; color: var(--muted); font-weight: 400; }
-        .label { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; }
+        /* ── Typography ─────────────────────────────── */
+        .display-xl {
+            font-size: clamp(3.6rem, 10vw, 9.5rem);
+            line-height: 0.90;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+        .display-lg {
+            font-size: clamp(2.4rem, 5.5vw, 5rem);
+            line-height: 0.96;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+        .display-md {
+            font-size: clamp(1.15rem, 2vw, 1.45rem);
+            line-height: 1.3;
+            font-weight: 700;
+            letter-spacing: -0.015em;
+        }
+        .body-lg {
+            font-size: clamp(1.05rem, 1.5vw, 1.22rem);
+            line-height: 1.78;
+            color: var(--muted);
+            font-weight: 400;
+        }
+        .body-md {
+            font-size: clamp(0.9rem, 1.1vw, 1rem);
+            line-height: 1.72;
+            color: var(--muted);
+            font-weight: 400;
+        }
+        .label {
+            font-family: var(--font-mono);
+            font-size: 0.67rem;
+            font-weight: 500;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
 
-        /* Progress + nav */
+        /* ── Progress bar + nav dots ────────────────── */
         .progress-container {
             position: fixed; right: 28px; top: 50%; transform: translateY(-50%);
-            width: 2px; height: 100px; background: rgba(0,0,0,0.10); border-radius: 2px; z-index: 1000;
+            width: 2px; height: 90px; background: rgba(0,0,0,0.09);
+            border-radius: 2px; z-index: 1000;
         }
         .progress-fill { width: 100%; background: var(--accent); border-radius: 2px; height: 0%; transition: height 0.1s linear; }
         .nav-dots {
-            position: fixed; right: 22px; top: 50%; transform: translateY(-50%);
-            display: flex; flex-direction: column; gap: 10px; z-index: 1000; margin-top: 70px;
+            position: fixed; right: 21px; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 9px; z-index: 1000; margin-top: 65px;
         }
-        .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,0,0,0.15); cursor: pointer; transition: all 0.3s ease; }
-        .nav-dot.active { background: var(--accent); transform: scale(1.5); }
-        .nav-dot:hover { background: var(--accent); opacity: 0.6; }
-
+        .nav-dot {
+            width: 5px; height: 5px; border-radius: 50%;
+            background: rgba(0,0,0,0.14); cursor: pointer; transition: all 0.3s ease;
+        }
+        .nav-dot.active { background: var(--accent); transform: scale(1.6); }
+        .nav-dot:hover { background: var(--accent); opacity: 0.55; }
         @media (max-width: 900px) { .progress-container, .nav-dots { display: none; } }
 
-        /* Utility */
-        .hl { color: var(--text); font-weight: 600; background: linear-gradient(120deg, rgba(201,68,24,0.12) 0%, rgba(201,68,24,0.08) 100%); padding: 1px 4px; border-radius: 3px; }
-        .text-white { color: #fff; }
-        .text-white-muted { color: rgba(255,255,255,0.82); }
+        /* ── Utilities ───────────────────────────────── */
+        .hl {
+            color: var(--text);
+            font-weight: 700;
+            background: linear-gradient(120deg, rgba(212,72,28,0.13), rgba(212,72,28,0.07));
+            padding: 1px 5px; border-radius: 4px;
+        }
+        .text-white      { color: #fff; }
+        .text-white-muted{ color: rgba(255,255,255,0.78); }
 
-        /* Chip/badge */
+        /* ── Chip / badge ────────────────────────────── */
         .chip {
-            display: inline-flex; align-items: center; gap: 6px;
-            font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600;
-            letter-spacing: 0.12em; text-transform: uppercase;
-            padding: 5px 12px; border-radius: 999px;
-            border: 1px solid rgba(255,255,255,0.25);
-            color: rgba(255,255,255,0.9);
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(8px);
+            display: inline-flex; align-items: center; gap: 7px;
+            font-family: var(--font-mono); font-size: 0.66rem; font-weight: 600;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            padding: 6px 14px; border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.22);
+            color: rgba(255,255,255,0.88);
+            background: rgba(255,255,255,0.11);
+            backdrop-filter: blur(10px);
+        }
+        .chip-dark {
+            display: inline-flex; align-items: center; gap: 7px;
+            font-family: var(--font-mono); font-size: 0.66rem; font-weight: 600;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            padding: 6px 14px; border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            background: rgba(0,0,0,0.04);
         }
 
-        /* Image helpers */
+        /* ── Images ──────────────────────────────────── */
         .img-cover { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Section base */
+        /* ── Section base ────────────────────────────── */
         section { position: relative; width: 100%; overflow: hidden; }
         .content { width: 100%; }
 
-        /* Reveal */
-        .reveal-up { opacity: 0; transform: translateY(40px); }
+        /* ── Reveal animation ────────────────────────── */
+        .reveal-up { opacity: 0; transform: translateY(36px); }
 
-        /* Terminal */
+        /* ── Terminal ────────────────────────────────── */
         .terminal {
-            background: #0D0D0F;
-            border-radius: 8px;
-            padding: 24px;
+            background: #0C0C0E;
+            border-radius: var(--radius-md);
+            padding: 26px 28px;
             font-family: var(--font-mono);
-            font-size: 0.82rem;
-            line-height: 1.7;
-            color: #F0F0EE;
-            box-shadow: 0 32px 80px -20px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.05);
+            font-size: 0.81rem;
+            line-height: 1.75;
+            color: #EEECEA;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 24px 64px -16px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
         }
-        .terminal-dots { display: flex; gap: 7px; margin-bottom: 16px; }
-        .dot-red { width: 10px; height: 10px; border-radius: 50%; background: #FF5F57; }
-        .dot-yel { width: 10px; height: 10px; border-radius: 50%; background: #FFBD2E; }
-        .dot-grn { width: 10px; height: 10px; border-radius: 50%; background: #28C840; }
+        .terminal-dots { display: flex; gap: 7px; margin-bottom: 18px; }
+        .dot-red { width: 11px; height: 11px; border-radius: 50%; background: #FF5F57; }
+        .dot-yel { width: 11px; height: 11px; border-radius: 50%; background: #FFBD2E; }
+        .dot-grn { width: 11px; height: 11px; border-radius: 50%; background: #28C840; }
 
-        /* Card/panel */
+        /* ── Panel / card ────────────────────────────── */
         .panel {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 10px;
+            background: #FFFFFF;
+            border-radius: var(--radius-md);
             padding: 32px;
-            border: 1px solid rgba(0,0,0,0.06);
-            box-shadow: 0 4px 6px -2px rgba(0,0,0,0.04), 0 16px 40px -12px rgba(0,0,0,0.08);
-            transition: box-shadow 0.25s ease, transform 0.25s ease;
+            border: 1px solid rgba(0,0,0,0.07);
+            box-shadow:
+                0 1px 2px rgba(0,0,0,0.03),
+                0 4px 8px -2px rgba(0,0,0,0.04),
+                0 16px 40px -12px rgba(0,0,0,0.07);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
         }
-        .panel:hover { box-shadow: 0 8px 12px -4px rgba(0,0,0,0.06), 0 24px 56px -16px rgba(0,0,0,0.12); transform: translateY(-1px); }
+        .panel:hover {
+            box-shadow:
+                0 2px 4px rgba(0,0,0,0.04),
+                0 8px 16px -4px rgba(0,0,0,0.06),
+                0 28px 56px -16px rgba(0,0,0,0.11);
+            transform: translateY(-2px);
+        }
         .panel-dark {
-            background: rgba(0,0,0,0.52);
+            background: rgba(255,255,255,0.05);
             backdrop-filter: blur(20px);
-            border-radius: 10px;
+            border-radius: var(--radius-md);
             padding: 32px;
             border: 1px solid rgba(255,255,255,0.08);
-            color: #fff;
         }
 
-        /* Screenshot placeholder */
+        /* ── Screenshot placeholder ──────────────────── */
         .screenshot-hint {
-            border: 2px dashed rgba(201,68,24,0.25);
-            border-radius: 10px;
-            padding: 32px;
+            border: 1.5px dashed rgba(0,0,0,0.16);
+            border-radius: var(--radius-md);
+            padding: 52px 36px;
             text-align: center;
-            background: rgba(201,68,24,0.03);
-            color: var(--accent);
+            background: rgba(0,0,0,0.02);
+        }
+        .screenshot-hint-icon {
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.05);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 14px;
+            font-size: 1.3rem;
+            color: var(--muted);
+        }
+        .screenshot-hint p {
             font-family: var(--font-mono);
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            color: rgba(0,0,0,0.35);
+            line-height: 1.6;
+        }
+        .screenshot-hint strong {
+            display: block;
+            font-size: 0.78rem;
+            color: rgba(0,0,0,0.5);
+            margin-bottom: 6px;
+            letter-spacing: 0.04em;
         }
 
-        /* Scroll indicator */
+        /* ── Scroll indicator ────────────────────────── */
         .scroll-indicator {
             position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
             display: flex; flex-direction: column; align-items: center; gap: 8px;
-            color: rgba(255,255,255,0.55); font-family: var(--font-mono); font-size: 0.65rem;
-            letter-spacing: 0.14em; text-transform: uppercase; z-index: 10;
-            animation: bounce 2.4s ease-in-out infinite;
+            color: rgba(255,255,255,0.45); z-index: 10;
+            animation: bounce 2.5s ease-in-out infinite;
         }
-        @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(7px); } }
+        .scroll-indicator span {
+            font-family: var(--font-mono); font-size: 0.62rem;
+            letter-spacing: 0.18em; text-transform: uppercase;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50%       { transform: translateX(-50%) translateY(8px); }
+        }
 
-        /* Buttons */
+        /* ── Buttons ─────────────────────────────────── */
         .btn-accent {
-            display: inline-flex; align-items: center; gap: 8px;
+            display: inline-flex; align-items: center; gap: 9px;
             background: var(--accent); color: #fff;
-            padding: 15px 30px; border-radius: 999px;
-            font-weight: 600; font-size: 0.95rem; letter-spacing: -0.01em;
+            padding: 16px 32px; border-radius: 999px;
+            font-family: var(--font-display);
+            font-weight: 700; font-size: 0.95rem; letter-spacing: -0.01em;
             border: none; cursor: pointer; text-decoration: none;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 14px -2px rgba(201,68,24,0.35);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+            box-shadow: 0 4px 16px -2px rgba(212,72,28,0.38);
         }
-        .btn-accent:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(201,68,24,0.45); }
-
+        .btn-accent:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px -4px rgba(212,72,28,0.48);
+        }
         .btn-outline {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: transparent; color: rgba(255,255,255,0.85);
-            padding: 14px 28px; border-radius: 999px;
+            display: inline-flex; align-items: center; gap: 9px;
+            background: transparent; color: rgba(255,255,255,0.82);
+            padding: 15px 30px; border-radius: 999px;
+            font-family: var(--font-display);
             font-weight: 500; font-size: 0.92rem;
-            border: 1px solid rgba(255,255,255,0.25); cursor: pointer; text-decoration: none;
-            transition: background 0.2s ease, color 0.2s ease;
+            border: 1px solid rgba(255,255,255,0.22);
+            cursor: pointer; text-decoration: none;
+            transition: background 0.22s ease, color 0.22s ease, border-color 0.22s ease;
         }
-        .btn-outline:hover { background: rgba(255,255,255,0.12); color: #fff; }
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.10);
+            color: #fff;
+            border-color: rgba(255,255,255,0.35);
+        }
+
+        /* ── Section label row ───────────────────────── */
+        .section-label {
+            display: inline-flex; align-items: center; gap: 8px;
+            margin-bottom: 20px;
+        }
+        .section-label-icon {
+            width: 28px; height: 28px; border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem;
+        }
+        .section-label-icon.orange { background: var(--accent-dim); color: var(--accent); }
+        .section-label-icon.teal   { background: var(--accent-2-dim); color: var(--accent-2); }
+        .section-label-icon.dark   { background: rgba(0,0,0,0.07); color: var(--text); }
     </style>
 </head>
 <body>
@@ -186,12 +298,25 @@
         <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.30) 50%, rgba(0,0,0,0.70) 100%);"></div>
     </div>
     <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
-        <div class="reveal-up" style="margin-bottom: 20px;">
+        <div class="reveal-up" style="margin-bottom: 24px;">
             <span class="chip"><i class="ph ph-certificate"></i> Free Masterclass</span>
         </div>
-        <h1 class="display-xl reveal-up text-white" style="max-width: 14ch;">Claude Code<br><span style="font-weight: 400; color: rgba(255,255,255,0.72);">for Normal People</span></h1>
-        <p class="body-lg reveal-up text-white-muted" style="margin-top: 28px; max-width: 52ch;">Most people know AI as something you chat with. Claude Code is different — it can <span style="color:#fff; font-weight:500;">carry out real work</span> inside your computer, your files, and your projects.</p>
-        <p class="reveal-up" style="margin-top: 20px; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.45);">No coding experience required &nbsp;·&nbsp; Scroll to explore</p>
+        <h1 class="display-xl reveal-up text-white" style="max-width: 16ch;">Claude Code<br><span style="font-weight: 300; color: rgba(255,255,255,0.60);">for Normal People</span></h1>
+        <p class="body-lg reveal-up text-white-muted" style="margin-top: 32px; max-width: 50ch; font-size: clamp(1.1rem, 1.8vw, 1.35rem);">Most people know AI as something you chat with. Claude Code is different — it <span style="color:#fff; font-weight:600;">carries out real work</span> inside your computer, your files, and your projects.</p>
+        <div class="reveal-up" style="margin-top: 32px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.5);">
+                <i class="ph ph-check-circle" style="color: #28C840; font-size: 1rem;"></i>
+                <span style="font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;">No coding required</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.5);">
+                <i class="ph ph-check-circle" style="color: #28C840; font-size: 1rem;"></i>
+                <span style="font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;">Beginner friendly</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.5);">
+                <i class="ph ph-check-circle" style="color: #28C840; font-size: 1rem;"></i>
+                <span style="font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;">Practical examples</span>
+            </div>
+        </div>
     </div>
     <div class="scroll-indicator">
         <i class="ph ph-arrow-down" style="font-size: 1.1rem;"></i>
@@ -222,7 +347,10 @@
         </div>
         <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
             <div style="max-width: 480px;">
-                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">The Ecosystem</p>
+                <div class="section-label reveal-up">
+                    <div class="section-label-icon orange"><i class="ph ph-squares-four"></i></div>
+                    <span class="label" style="color: var(--accent);">The Ecosystem</span>
+                </div>
                 <h2 class="display-lg reveal-up" style="margin-bottom: 32px;">Meet the 3 Claudes</h2>
                 <div style="display: flex; flex-direction: column; gap: 14px;">
                     <div class="panel reveal-up">
@@ -248,7 +376,10 @@
     <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh;">
         <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
             <div style="max-width: 480px;">
-                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">Decision Framework</p>
+                <div class="section-label reveal-up">
+                    <div class="section-label-icon teal"><i class="ph ph-arrows-split"></i></div>
+                    <span class="label" style="color: var(--accent-2);">Decision Framework</span>
+                </div>
                 <h2 class="display-lg reveal-up" style="margin-bottom: 32px;">When to Use Which?</h2>
                 <div style="display: flex; flex-direction: column; gap: 14px;">
                     <div class="panel reveal-up">
@@ -291,6 +422,11 @@
                 <h2 class="display-lg reveal-up text-white" style="margin-bottom: 24px;">What is the<br>Terminal?</h2>
                 <p class="body-lg reveal-up text-white-muted">The terminal is basically a <span style="color:#fff; font-weight:500;">text-based control panel</span> for your computer. Instead of clicking buttons, you type instructions.</p>
                 <p class="body-md reveal-up text-white-muted" style="margin-top: 16px;">For non-technical folks: it looks like the Matrix, but it's just a place where you talk to your computer with text instead of a mouse.</p>
+                <div class="screenshot-hint reveal-up" style="margin-top: 20px;">
+                    <div class="screenshot-hint-icon"><i class="ph ph-terminal-window"></i></div>
+                    <strong>[Add screenshot here]</strong>
+                    <p>Your terminal after typing <code style="font-family: var(--font-mono);">claude</code> for the first time — showing the welcome prompt and cursor</p>
+                </div>
             </div>
         </div>
     </div>
@@ -364,8 +500,9 @@
                 <p class="body-md" style="color: var(--text);"><strong>Claude takes action.</strong> It edits files, runs commands, and asks for your approval.</p>
             </div>
             <div class="screenshot-hint reveal-up" style="margin-top: 6px;">
-                <i class="ph ph-image" style="font-size: 1.2rem; display: block; margin-bottom: 6px;"></i>
-                Screenshot suggestion: Show a real Claude Code session mid-task — the conversation, a tool call, and the approval prompt
+                <div class="screenshot-hint-icon"><i class="ph ph-monitor"></i></div>
+                <strong>[Add screenshot here]</strong>
+                <p>A real Claude Code session mid-task: the conversation, a tool call, and the approval prompt side by side</p>
             </div>
         </div>
     </div>
@@ -484,7 +621,10 @@
                 <div style="border-radius: 4px; overflow: hidden; margin-top: 24px;"><img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="sketch"></div>
             </div>
             <div>
-                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">Safety Feature</p>
+                <div class="section-label reveal-up">
+                    <div class="section-label-icon orange"><i class="ph ph-shield-check"></i></div>
+                    <span class="label" style="color: var(--accent);">Safety Feature</span>
+                </div>
                 <h2 class="display-lg reveal-up" style="margin-bottom: 24px;">Plan Mode:<br>Look Before You Leap</h2>
                 <p class="body-lg reveal-up" style="margin-bottom: 20px;">Before touching any files, Claude can show you a <span class="hl">plain-English proposal</span>, like an architect drawing blueprints before construction.</p>
                 <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -492,8 +632,9 @@
                     <div class="panel reveal-up" style="padding: 16px 20px;"><p class="body-md"><strong style="color: var(--accent-2);">2.</strong> You review and approve</p></div>
                     <div class="panel reveal-up" style="padding: 16px 20px;"><p class="body-md"><strong style="color: var(--accent-2);">3.</strong> Claude executes and asks for checkpoints</p></div>
                     <div class="screenshot-hint reveal-up" style="margin-top: 4px;">
-                        <i class="ph ph-image" style="font-size: 1.1rem; display: block; margin-bottom: 5px;"></i>
-                        Screenshot suggestion: A Claude Code plan mode output showing numbered steps before execution
+                        <div class="screenshot-hint-icon"><i class="ph ph-list-numbers"></i></div>
+                        <strong>[Add screenshot here]</strong>
+                        <p>Claude Code plan mode output showing the numbered step-by-step proposal before any files are touched</p>
                     </div>
                 </div>
             </div>
@@ -625,6 +766,11 @@
                 </div>
                 <div class="panel reveal-up" style="margin-top: 14px; background: var(--accent-2-dim); border: 1px solid rgba(15,118,110,0.2);">
                     <p class="body-md" style="color: var(--text);">MCP servers are installed once and available every session. The community is building new ones daily.</p>
+                </div>
+                <div class="screenshot-hint reveal-up" style="margin-top: 16px;">
+                    <div class="screenshot-hint-icon"><i class="ph ph-graph"></i></div>
+                    <strong>[Add diagram here]</strong>
+                    <p>Hub-and-spoke diagram: Claude Code in the centre, arrows out to Gmail, Slack, Web, Database, Calendar</p>
                 </div>
             </div>
         </div>

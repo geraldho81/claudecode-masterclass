@@ -1,1308 +1,1182 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claude Code for Normal People</title>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23D94E1F'/%3E%3Cpath d='M35 35 L55 50 L35 65' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='55' y1='65' x2='75' y2='65' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E">
-    <style>
-        /* ── Design tokens ─────────────────────────── */
-        :root {
-            --bg:          #F5F3EE;
-            --bg-alt:      #FFFFFF;
-            --surface:     #FFFFFF;
-            --surface-warm:#EAE7DF;
-            --dark:        #0B0B0B;
-            --dark-2:      #141414;
-            --border:      rgba(0,0,0,0.08);
-            --border-dark: rgba(255,255,255,0.09);
-            --accent:      #D4481C;
-            --accent-dim:  rgba(212,72,28,0.10);
-            --accent-2:    #0B7168;
-            --accent-2-dim:rgba(11,113,104,0.10);
-            --text:        #0A0A0A;
-            --muted:       #595959;
-            --font-display:'Plus Jakarta Sans', sans-serif;
-            --font-mono:   'JetBrains Mono', monospace;
-            --radius-sm:   8px;
-            --radius-md:   14px;
-            --radius-lg:   20px;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Claude Code for Normal People. A session by Axecute on CLI agents, the terminal, and how to get real work done." />
+  <title>Claude Code for Normal People — Axecute Masterclass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/axecute-logo.svg" type="image/svg+xml" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <style>
+    :root {
+      --ink: #f4f1ea;
+      --muted: #b9b4aa;
+      --soft: #8f897e;
+      --void: #070807;
+      --carbon: #10110f;
+      --graphite: #191a17;
+      --line: rgba(244,241,234,0.15);
+      --line-strong: rgba(244,241,234,0.28);
+      --acid: #b7ff2a;
+      --cyan: #6af4ff;
+      --shadow: rgba(0,0,0,0.52);
+    }
 
-        /* ── Reset ──────────────────────────────────── */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--font-display);
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        ::selection { background: var(--accent-dim); color: var(--text); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--void);
+      color: var(--ink);
+      font-family: "Manrope", "Avenir Next", sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
 
-        /* ── Typography ─────────────────────────────── */
-        .display-xl {
-            font-size: clamp(3.6rem, 10vw, 9.5rem);
-            line-height: 0.90;
-            font-weight: 800;
-            letter-spacing: -0.04em;
-        }
-        .display-lg {
-            font-size: clamp(2.4rem, 5.5vw, 5rem);
-            line-height: 0.96;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-        }
-        .display-md {
-            font-size: clamp(1.15rem, 2vw, 1.45rem);
-            line-height: 1.3;
-            font-weight: 700;
-            letter-spacing: -0.015em;
-        }
-        .body-lg {
-            font-size: clamp(1.05rem, 1.5vw, 1.22rem);
-            line-height: 1.78;
-            color: var(--muted);
-            font-weight: 400;
-        }
-        .body-md {
-            font-size: clamp(0.9rem, 1.1vw, 1rem);
-            line-height: 1.72;
-            color: var(--muted);
-            font-weight: 400;
-        }
-        .label {
-            font-family: var(--font-mono);
-            font-size: 0.67rem;
-            font-weight: 500;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
+    .grain {
+      position: fixed; inset: 0; z-index: 50; pointer-events: none; opacity: 0.13;
+      background-image: linear-gradient(115deg,rgba(255,255,255,0.08),transparent 30%),
+        repeating-radial-gradient(circle at 17% 24%,rgba(255,255,255,0.2) 0 1px,transparent 1px 4px);
+      mix-blend-mode: overlay;
+    }
 
-        /* ── Progress bar + nav dots ────────────────── */
-        .progress-container {
-            position: fixed; right: 28px; top: 50%; transform: translateY(-50%);
-            width: 2px; height: 90px; background: rgba(0,0,0,0.09);
-            border-radius: 2px; z-index: 1000;
-        }
-        .progress-fill { width: 100%; background: var(--accent); border-radius: 2px; height: 0%; transition: height 0.1s linear; }
-        .nav-dots {
-            position: fixed; right: 21px; top: 50%; transform: translateY(-50%);
-            display: flex; flex-direction: column; gap: 9px; z-index: 1000; margin-top: 65px;
-        }
-        .nav-dot {
-            width: 5px; height: 5px; border-radius: 50%;
-            background: rgba(0,0,0,0.14); cursor: pointer; transition: all 0.3s ease;
-        }
-        .nav-dot.active { background: var(--accent); transform: scale(1.6); }
-        .nav-dot:hover { background: var(--accent); opacity: 0.55; }
-        @media (max-width: 900px) { .progress-container, .nav-dots { display: none; } }
+    .progress-bar { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 200; background: rgba(244,241,234,0.06); }
+    .progress-fill { height: 100%; width: 0; background: var(--acid); }
 
-        /* ── Utilities ───────────────────────────────── */
-        .hl {
-            color: var(--text);
-            font-weight: 700;
-            background: linear-gradient(120deg, rgba(212,72,28,0.13), rgba(212,72,28,0.07));
-            padding: 1px 5px; border-radius: 4px;
-        }
-        .text-white      { color: #fff; }
-        .text-white-muted{ color: rgba(255,255,255,0.78); }
+    .nav-dots {
+      position: fixed; right: 22px; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 9px; z-index: 100;
+    }
+    .nav-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: rgba(244,241,234,0.18); cursor: pointer; transition: all 0.3s ease;
+    }
+    .nav-dot.active { background: var(--acid); transform: scale(1.6); }
+    .nav-dot:hover { background: rgba(183,255,42,0.55); }
+    @media (max-width: 900px) { .nav-dots { display: none; } }
 
-        /* ── Chip / badge ────────────────────────────── */
-        .chip {
-            display: inline-flex; align-items: center; gap: 7px;
-            font-family: var(--font-mono); font-size: 0.66rem; font-weight: 600;
-            letter-spacing: 0.14em; text-transform: uppercase;
-            padding: 6px 14px; border-radius: 999px;
-            border: 1px solid rgba(255,255,255,0.22);
-            color: rgba(255,255,255,0.88);
-            background: rgba(255,255,255,0.11);
-            backdrop-filter: blur(10px);
-        }
-        .chip-dark {
-            display: inline-flex; align-items: center; gap: 7px;
-            font-family: var(--font-mono); font-size: 0.66rem; font-weight: 600;
-            letter-spacing: 0.14em; text-transform: uppercase;
-            padding: 6px 14px; border-radius: 999px;
-            border: 1px solid var(--border);
-            color: var(--muted);
-            background: rgba(0,0,0,0.04);
-        }
 
-        /* ── Images ──────────────────────────────────── */
-        .img-cover { width: 100%; height: 100%; object-fit: cover; }
+    /* ── Type ── */
+    h1, h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-weight: 400; letter-spacing: 0; line-height: 0.95; margin-bottom: 26px;
+    }
+    h1 { font-size: clamp(46px,8vw,92px); max-width: 18ch; }
+    h2 { font-size: clamp(34px,5vw,62px); }
+    h3 { font-size: 18px; font-weight: 700; line-height: 1.2; margin-bottom: 10px; }
+    p { margin-top: 0; }
 
-        /* ── Section base ────────────────────────────── */
-        section { position: relative; width: 100%; overflow: hidden; }
-        .content { width: 100%; }
+    .section-kicker {
+      margin: 0 0 18px; color: var(--acid);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em;
+    }
+    .body-lg { font-size: clamp(17px,1.6vw,20px); line-height: 1.7; color: var(--muted); }
+    .body-md { font-size: clamp(14px,1.05vw,16px); line-height: 1.7; color: var(--muted); }
 
-        /* ── Reveal animation ────────────────────────── */
-        .reveal-up { opacity: 0; transform: translateY(36px); }
+    code {
+      font-family: "JetBrains Mono", monospace; font-size: 0.88em;
+      color: var(--acid); background: rgba(183,255,42,0.08); padding: 1px 5px; border-radius: 3px;
+    }
+    .hl { font-weight: 700; color: var(--acid); }
 
-        /* ── Terminal ────────────────────────────────── */
-        .terminal {
-            background: #0C0C0E;
-            border-radius: var(--radius-md);
-            padding: 26px 28px;
-            font-family: var(--font-mono);
-            font-size: 0.81rem;
-            line-height: 1.75;
-            color: #EEECEA;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 24px 64px -16px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
-        }
-        .terminal-dots { display: flex; gap: 7px; margin-bottom: 18px; }
-        .dot-red { width: 11px; height: 11px; border-radius: 50%; background: #FF5F57; }
-        .dot-yel { width: 11px; height: 11px; border-radius: 50%; background: #FFBD2E; }
-        .dot-grn { width: 11px; height: 11px; border-radius: 50%; background: #28C840; }
+    /* ── Buttons ── */
+    .button {
+      display: inline-flex; min-height: 46px; align-items: center; justify-content: center;
+      padding: 12px 20px; border: 1px solid var(--line-strong); border-radius: 6px;
+      font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: transform 180ms ease, background 180ms ease;
+    }
+    .button:hover { transform: translateY(-2px); }
+    .button.primary { color: var(--void); background: var(--acid); border-color: var(--acid); }
+    .button.secondary { color: var(--ink); background: rgba(244,241,234,0.06); }
 
-        /* ── Panel / card ────────────────────────────── */
-        .panel {
-            background: #FFFFFF;
-            border-radius: var(--radius-md);
-            padding: 32px;
-            border: 1px solid rgba(0,0,0,0.07);
-            box-shadow:
-                0 1px 2px rgba(0,0,0,0.03),
-                0 4px 8px -2px rgba(0,0,0,0.04),
-                0 16px 40px -12px rgba(0,0,0,0.07);
-            transition: box-shadow 0.3s ease, transform 0.3s ease;
-        }
-        .panel:hover {
-            box-shadow:
-                0 2px 4px rgba(0,0,0,0.04),
-                0 8px 16px -4px rgba(0,0,0,0.06),
-                0 28px 56px -16px rgba(0,0,0,0.11);
-            transform: translateY(-2px);
-        }
-        .panel-dark {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(20px);
-            border-radius: var(--radius-md);
-            padding: 32px;
-            border: 1px solid rgba(255,255,255,0.08);
-        }
+    /* ── Cards ── */
+    .card {
+      padding: 24px; border: 1px solid var(--line); border-radius: 8px;
+      background: linear-gradient(180deg,rgba(244,241,234,0.07),rgba(244,241,234,0.02));
+    }
+    .card-carbon { padding: 24px; border: 1px solid var(--line); border-radius: 8px; background: var(--carbon); }
+    .card-acid { padding: 24px; border: 1px solid rgba(183,255,42,0.22); border-radius: 8px; background: rgba(183,255,42,0.06); }
+    .card-cyan { padding: 24px; border: 1px solid rgba(106,244,255,0.2); border-radius: 8px; background: rgba(106,244,255,0.05); }
 
-        /* ── Screenshot placeholder ──────────────────── */
-        .screenshot-hint {
-            border: 1.5px dashed rgba(0,0,0,0.16);
-            border-radius: var(--radius-md);
-            padding: 52px 36px;
-            text-align: center;
-            background: rgba(0,0,0,0.02);
-        }
-        .screenshot-hint-icon {
-            width: 44px; height: 44px;
-            border-radius: 10px;
-            background: rgba(0,0,0,0.05);
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 14px;
-            font-size: 1.3rem;
-            color: var(--muted);
-        }
-        .screenshot-hint p {
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
-            letter-spacing: 0.08em;
-            color: rgba(0,0,0,0.35);
-            line-height: 1.6;
-        }
-        .screenshot-hint strong {
-            display: block;
-            font-size: 0.78rem;
-            color: rgba(0,0,0,0.5);
-            margin-bottom: 6px;
-            letter-spacing: 0.04em;
-        }
+    /* ── Terminal ── */
+    .terminal-panel {
+      position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 8px;
+      background: linear-gradient(160deg,rgba(106,244,255,0.10),transparent 46%), #0c0d0b;
+      box-shadow: 0 30px 90px var(--shadow);
+    }
+    .terminal-panel::after {
+      content: ""; position: absolute; inset: 41px 0 auto; height: 1px; background: var(--line);
+    }
+    .terminal-topline { display: flex; gap: 7px; padding: 14px 16px; }
+    .terminal-topline span { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+    .terminal-lines {
+      display: grid; gap: 16px; padding: 28px 24px;
+      font-family: "JetBrains Mono", monospace; font-size: 13px;
+    }
+    .terminal-lines p { margin: 0; color: var(--muted); }
+    .terminal-lines span { display: inline-block; min-width: 20px; margin-right: 12px; color: var(--acid); }
+    .t-out { color: var(--soft) !important; padding-left: 32px; }
+    .t-acid { color: var(--acid) !important; }
+    .t-cyan { color: var(--cyan) !important; }
+    .t-dim { color: var(--soft) !important; opacity: 0.55; }
 
-        /* ── Scroll indicator ────────────────────────── */
-        .scroll-indicator {
-            position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
-            color: rgba(255,255,255,0.45); z-index: 10;
-            animation: bounce 2.5s ease-in-out infinite;
-        }
-        .scroll-indicator span {
-            font-family: var(--font-mono); font-size: 0.62rem;
-            letter-spacing: 0.18em; text-transform: uppercase;
-        }
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50%       { transform: translateX(-50%) translateY(8px); }
-        }
+    /* ── Img ── */
+    .img-cover { width: 100%; height: 100%; object-fit: cover; }
+    .img-scrim-l { background: linear-gradient(90deg,rgba(7,8,7,0.88) 0%,rgba(7,8,7,0.44) 52%,rgba(7,8,7,0.12) 100%); }
+    .img-scrim-dark { background: rgba(0,0,0,0.50); }
 
-        /* ── Buttons ─────────────────────────────────── */
-        .btn-accent {
-            display: inline-flex; align-items: center; gap: 9px;
-            background: var(--accent); color: #fff;
-            padding: 16px 32px; border-radius: 999px;
-            font-family: var(--font-display);
-            font-weight: 700; font-size: 0.95rem; letter-spacing: -0.01em;
-            border: none; cursor: pointer; text-decoration: none;
-            transition: transform 0.22s ease, box-shadow 0.22s ease;
-            box-shadow: 0 4px 16px -2px rgba(212,72,28,0.38);
-        }
-        .btn-accent:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 28px -4px rgba(212,72,28,0.48);
-        }
-        .btn-outline {
-            display: inline-flex; align-items: center; gap: 9px;
-            background: transparent; color: rgba(255,255,255,0.82);
-            padding: 15px 30px; border-radius: 999px;
-            font-family: var(--font-display);
-            font-weight: 500; font-size: 0.92rem;
-            border: 1px solid rgba(255,255,255,0.22);
-            cursor: pointer; text-decoration: none;
-            transition: background 0.22s ease, color 0.22s ease, border-color 0.22s ease;
-        }
-        .btn-outline:hover {
-            background: rgba(255,255,255,0.10);
-            color: #fff;
-            border-color: rgba(255,255,255,0.35);
-        }
+    /* ── Sections ── */
+    section { position: relative; width: 100%; overflow: hidden; }
+    .section-band { padding: 104px 28px; }
+    .section-inner { max-width: 1240px; margin: 0 auto; }
 
-        /* ── Section label row ───────────────────────── */
-        .section-label {
-            display: inline-flex; align-items: center; gap: 8px;
-            margin-bottom: 20px;
-        }
-        .section-label-icon {
-            width: 28px; height: 28px; border-radius: 7px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.9rem;
-        }
-        .section-label-icon.orange { background: var(--accent-dim); color: var(--accent); }
-        .section-label-icon.teal   { background: var(--accent-2-dim); color: var(--accent-2); }
-        .section-label-icon.dark   { background: rgba(0,0,0,0.07); color: var(--text); }
-    </style>
+    /* ── Two-col layout ── */
+    .split { display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh; }
+    .split-left { display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; }
+    .split-right { position: relative; min-height: 100vh; }
+    .split-copy { max-width: 500px; }
+
+    /* ── Reveal ── */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 600ms ease, transform 600ms ease; }
+    .reveal.is-visible { opacity: 1; transform: none; }
+
+    /* ── Site footer ── */
+    .site-footer {
+      display: flex; justify-content: space-between; gap: 24px;
+      padding: 28px; border-top: 1px solid var(--line);
+      color: var(--soft); font-family: "JetBrains Mono", monospace; font-size: 12px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1080px) {
+      .split { grid-template-columns: 1fr; min-height: auto; }
+      .split-right { min-height: 56vw; }
+      .three-col { grid-template-columns: 1fr 1fr !important; }
+    }
+    @media (max-width: 760px) {
+      .section-band { padding: 72px 18px; }
+      .site-header { padding: 14px 18px; }
+      .three-col, .four-col { grid-template-columns: 1fr !important; }
+      .five-col { grid-template-columns: 1fr 1fr !important; }
+      h1 { font-size: 42px; }
+      h2 { font-size: 32px; }
+      .site-footer { flex-direction: column; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="progress-container"><div class="progress-fill" id="progressFill"></div></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
 <div class="nav-dots" id="navDots"></div>
 
-<!-- 1. HERO: Full-bleed photo -->
-<section id="sec-1" data-nav="1" style="min-height: 100vh; display: flex; align-items: flex-end; padding: 0;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="workspace">
-        <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.30) 50%, rgba(0,0,0,0.70) 100%);"></div>
-    </div>
-    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
-        <div class="reveal-up" style="margin-bottom: 24px;">
-            <span class="chip"><i class="ph ph-certificate"></i> Free Masterclass</span>
-        </div>
-        <h1 class="display-xl reveal-up text-white" style="max-width: 16ch;">Claude Code<br><span style="font-weight: 300; color: rgba(255,255,255,0.60);">for Normal People</span></h1>
-        <p class="body-lg reveal-up text-white-muted" style="margin-top: 32px; max-width: 50ch; font-size: clamp(1.1rem, 1.8vw, 1.35rem);">Most people know AI as something you chat with. Claude Code is different - it <span style="color:#fff; font-weight:600;">carries out real work</span> inside your computer, your files, and your projects.</p>
-        <div class="reveal-up" style="margin-top: 32px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.5);">
-                <i class="ph ph-check-circle" style="color: #28C840; font-size: 1rem;"></i>
-                <span style="font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;">No coding required</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.5);">
-                <i class="ph ph-check-circle" style="color: #28C840; font-size: 1rem;"></i>
-                <span style="font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;">Beginner friendly</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.5);">
-                <i class="ph ph-check-circle" style="color: #28C840; font-size: 1rem;"></i>
-                <span style="font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;">Practical examples</span>
-            </div>
-        </div>
-    </div>
-    <div class="scroll-indicator">
-        <i class="ph ph-arrow-down" style="font-size: 1.1rem;"></i>
-    </div>
-</section>
 
-<!-- 5. What is Claude Code: Full photo + floating text -->
-<section id="sec-5" data-nav="5" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1516116216624-53e697fedbea?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="code">
-        <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.25) 60%, transparent 100%);"></div>
-    </div>
-    <div class="content" style="position: relative; z-index: 2; padding: 0 6vw; width: 100%;">
-        <div style="max-width: 650px;">
-            <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">The Product</p>
-            <h2 class="display-lg reveal-up text-white" style="margin-bottom: 24px;">What is<br>Claude Code?</h2>
-            <p class="body-lg reveal-up text-white-muted" style="margin-bottom: 20px;">Claude Code is an AI tool you run from the terminal. It can <span style="color:#fff; font-weight:500;">read your project</span>, edit files, run commands, and help complete coding tasks.</p>
-            <p class="body-md reveal-up text-white-muted">It is basically an AI engineer that sits inside your project folders and takes instructions from you.</p>
-        </div>
-    </div>
-</section>
 
-<!-- 2. Meet the 3 Claudes: Photo left, cards right -->
-<section id="sec-2" data-nav="2" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh;">
-        <div style="position: relative; min-height: 100vh;">
-            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="team">
-        </div>
-        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
-            <div style="max-width: 480px;">
-                <div class="section-label reveal-up">
-                    <div class="section-label-icon orange"><i class="ph ph-squares-four"></i></div>
-                    <span class="label" style="color: var(--accent);">The Ecosystem</span>
-                </div>
-                <h2 class="display-lg reveal-up" style="margin-bottom: 32px;">Meet the 3 Claudes</h2>
-                <div style="display: flex; flex-direction: column; gap: 14px;">
-                    <div class="panel reveal-up">
-                        <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 4px; color: var(--accent-2);">Claude.ai</h4>
-                        <p class="body-md">For chatting, writing, and thinking.</p>
-                    </div>
-                    <div class="panel reveal-up">
-                        <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 4px; color: var(--text);">Claude Cowork</h4>
-                        <p class="body-md">For non-technical work across files and apps on your desktop.</p>
-                    </div>
-                    <div class="panel reveal-up" style="background: var(--accent-dim);">
-                        <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 4px; color: var(--accent);">Claude Code</h4>
-                        <p class="body-md" style="color: var(--text);">For technical work inside the terminal.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- ── 1. HERO ─────────────────────────────────────────────────── -->
+<section id="sec-hero" data-nav="hero" style="min-height:100vh; display:flex; align-items:flex-end;">
+  <div style="position:absolute;inset:0;z-index:0;">
+    <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=2200&q=85" class="img-cover" alt="coding workstation" style="filter:grayscale(0.78) contrast(1.12) brightness(0.52); transform:scale(1.02);" />
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,8,7,0.18) 0%,rgba(7,8,7,0.38) 48%,rgba(7,8,7,0.82) 100%);"></div>
+    <div style="position:absolute;inset:0;opacity:0.22;background-image:linear-gradient(rgba(244,241,234,0.12) 1px,transparent 1px),linear-gradient(90deg,rgba(244,241,234,0.12) 1px,transparent 1px);background-size:88px 88px;mask-image:linear-gradient(180deg,transparent,black 30%,black 70%,transparent);pointer-events:none;"></div>
+  </div>
+  <div style="position:relative;z-index:2;padding:10vh 28px 10vh;width:100%;max-width:1240px;margin:0 auto;">
+    <p class="section-kicker reveal">Axecute</p>
+    <h1 class="reveal" style="max-width:14ch;">Claude Code<br><span style="font-style:italic;color:var(--muted);">for Normal People</span></h1>
+    <p class="body-lg reveal" style="max-width:56ch;margin-bottom:36px;">Most people use AI to get answers. Claude Code does something different: it opens your files, makes changes, and runs commands <strong style="color:var(--ink);">directly inside your project.</strong></p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px;" class="reveal">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);padding:6px 12px;border:1px solid var(--line);border-radius:4px;">No coding required</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);padding:6px 12px;border:1px solid var(--line);border-radius:4px;">Beginner friendly</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);padding:6px 12px;border:1px solid var(--line);border-radius:4px;">Practical examples</span>
     </div>
-</section>
-
-<!-- 3. When to Use Which: Asymmetric photo right -->
-<section id="sec-3" data-nav="3" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh;">
-        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
-            <div style="max-width: 480px;">
-                <div class="section-label reveal-up">
-                    <div class="section-label-icon teal"><i class="ph ph-arrows-split"></i></div>
-                    <span class="label" style="color: var(--accent-2);">Decision Framework</span>
-                </div>
-                <h2 class="display-lg reveal-up" style="margin-bottom: 32px;">When to Use Which?</h2>
-                <div style="display: flex; flex-direction: column; gap: 14px;">
-                    <div class="panel reveal-up">
-                        <p class="body-md"><strong style="color: var(--accent-2);">Claude.ai</strong>: Use this when you want ideas or answers.</p>
-                    </div>
-                    <div class="panel reveal-up">
-                        <p class="body-md"><strong style="color: var(--text);">Claude Cowork</strong>: Use this when you want help with desktop tasks and documents.</p>
-                    </div>
-                    <div class="panel reveal-up" style="background: var(--accent-dim);">
-                        <p class="body-md" style="color: var(--text);"><strong style="color: var(--accent);">Claude Code</strong>: Use this when you want Claude to work inside a technical project.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div style="position: relative; min-height: 100vh;">
-            <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="decision">
-        </div>
-    </div>
+    <a class="button primary reveal" href="#sec-what-is">Start learning</a>
+  </div>
 </section>
 
 
-<!-- 7. Terminal: Photo background + floating terminal mockup -->
-<section id="sec-7" data-nav="7" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="terminal bg">
-        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5);"></div>
+<!-- ── 2. WHAT IS CLAUDE CODE ────────────────────────────────── -->
+<section id="sec-what-is" data-nav="what-is" style="min-height:100vh;display:flex;align-items:center;">
+  <div class="split">
+    <div class="split-left">
+      <div class="split-copy">
+        <p class="section-kicker reveal">The Product</p>
+        <h2 class="reveal">What is Claude Code?</h2>
+        <p class="body-lg reveal" style="margin-bottom:20px;">Claude Code is an AI tool you run from the terminal. It can <strong style="color:var(--ink);">read your project</strong>, edit files, run commands, and help complete real tasks.</p>
+        <p class="body-md reveal">You point it at a folder, tell it what to do, and it works through the files.</p>
+      </div>
     </div>
-    <div class="content" style="position: relative; z-index: 2; padding: 0 6vw; width: 100%;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5vw; align-items: center; max-width: 1200px; margin: 0 auto;">
-            <div class="terminal reveal-up">
-                <div class="terminal-dots"><div class="dot-red"></div><div class="dot-yel"></div><div class="dot-grn"></div></div>
-                <div style="color: var(--muted);">$ ls</div>
-                <div style="color: #F2F2F0;">docs  src  tests  package.json</div>
-                <div style="color: var(--muted); margin-top: 12px;">$ mkdir new-folder</div>
-                <div style="color: var(--muted);">$ npm run dev</div>
-                <div style="color: var(--accent-2); margin-top: 12px;">> Server running on localhost:3000</div>
-            </div>
-            <div>
-                <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">The Workspace</p>
-                <h2 class="display-lg reveal-up text-white" style="margin-bottom: 24px;">What is the<br>Terminal?</h2>
-                <p class="body-lg reveal-up text-white-muted">The terminal is basically a <span style="color:#fff; font-weight:500;">text-based control panel</span> for your computer. Instead of clicking buttons, you type instructions.</p>
-                <p class="body-md reveal-up text-white-muted" style="margin-top: 16px;">For non-technical folks: it looks like the Matrix, but it's just a place where you talk to your computer with text instead of a mouse.</p>
-                <div class="screenshot-hint reveal-up" style="margin-top: 20px;">
-                    <div class="screenshot-hint-icon"><i class="ph ph-terminal-window"></i></div>
-                    <strong>[Add screenshot here]</strong>
-                    <p>Your terminal after typing <code style="font-family: var(--font-mono);">claude</code> for the first time - showing the welcome prompt and cursor</p>
-                </div>
-            </div>
-        </div>
+    <div class="split-right">
+      <img src="https://images.unsplash.com/photo-1516116216624-53e697fedbea?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="code" style="filter:grayscale(0.55) contrast(1.1) brightness(0.72);" />
     </div>
+  </div>
 </section>
 
-<!-- 8. Why Terminal: Photo bottom strip -->
-<section id="sec-8" data-nav="8" style="min-height: 90vh; display: flex; flex-direction: column; justify-content: center; padding: 10vh 6vw;">
-    <div class="content" style="max-width: 900px; margin: 0 auto; text-align: center;">
-        <p class="label reveal-up" style="color: var(--accent-2); margin-bottom: 14px;">Developer Environment</p>
-        <h2 class="display-lg reveal-up" style="margin-bottom: 24px;">Why Use the Terminal?</h2>
-        <p class="body-lg reveal-up" style="margin-bottom: 28px;">The terminal is where developers already build, test, and run things. That makes it the best place for Claude Code, because it can work <span class="hl">directly</span> with files, commands, and tools in the same environment.</p>
-        <div class="panel reveal-up" style="display: inline-block; background: var(--accent-2-dim); border: 1px solid rgba(15,118,110,0.2);">
-            <p class="body-md" style="color: var(--text); max-width: 55ch;">By living in the terminal, Claude doesn't just write code in a browser window for you to copy-paste. It writes the code directly into your actual files.</p>
+
+<!-- ── 3. MEET THE 3 CLAUDES ─────────────────────────────────── -->
+<section id="sec-3claudes" data-nav="3claudes" style="min-height:100vh;display:flex;align-items:center;">
+  <div class="split">
+    <div class="split-right" style="order:-1;">
+      <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="team" style="filter:grayscale(0.55) contrast(1.08) brightness(0.66);" />
+    </div>
+    <div class="split-left">
+      <div class="split-copy">
+        <p class="section-kicker reveal">The Ecosystem</p>
+        <h2 class="reveal">Meet the 3 Claudes</h2>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card reveal">
+            <h3 style="color:var(--cyan);margin-bottom:4px;">Claude.ai</h3>
+            <p class="body-md">For chatting, writing, and thinking.</p>
+          </div>
+          <div class="card reveal">
+            <h3 style="margin-bottom:4px;">Claude Cowork</h3>
+            <p class="body-md">For non-technical work across files and apps on your desktop.</p>
+          </div>
+          <div class="card-acid reveal">
+            <h3 style="color:var(--acid);margin-bottom:4px;">Claude Code</h3>
+            <p class="body-md" style="color:var(--muted);">For technical work inside the terminal.</p>
+          </div>
         </div>
+      </div>
     </div>
-    <div style="margin-top: 6vh; height: 35vh; border-radius: 6px; overflow: hidden; max-width: 1200px; width: 100%; margin-left: auto; margin-right: auto;">
-        <img src="https://images.unsplash.com/photo-1555099962-4199c345e5dd?auto=format&fit=crop&w=1600&q=80" class="img-cover" alt="code editor">
-    </div>
+  </div>
 </section>
 
-<!-- 9. AI Takes Action: Diagonal photo layout -->
-<section id="sec-9" data-nav="9" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
-    <div style="display: grid; grid-template-columns: 1.2fr 1fr; width: 100%; min-height: 100vh;">
-        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
-            <div style="max-width: 560px;">
-                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">The Shift</p>
-                <h2 class="display-lg reveal-up" style="margin-bottom: 28px;">AI That Takes Action</h2>
-                <p class="body-lg reveal-up" style="margin-bottom: 28px;">Normal AI gives suggestions. Claude Code can also <span class="hl">take action</span> inside your project, like editing files, checking code, and running steps for you.</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div class="panel reveal-up">
-                        <p class="label" style="color: var(--muted); margin-bottom: 6px;">Old</p>
-                        <p class="body-md">Prompt → Copy → Paste → Fix</p>
-                    </div>
-                    <div class="panel reveal-up" style="background: var(--accent-dim);">
-                        <p class="label" style="color: var(--accent); margin-bottom: 6px;">New</p>
-                        <p class="body-md" style="color: var(--text);">Delegate → Approve → Review</p>
-                    </div>
-                </div>
-            </div>
+
+<!-- ── 4. WHEN TO USE WHICH ──────────────────────────────────── -->
+<section id="sec-when" data-nav="when" style="min-height:100vh;display:flex;align-items:center;">
+  <div class="split">
+    <div class="split-left">
+      <div class="split-copy">
+        <p class="section-kicker reveal">Decision Framework</p>
+        <h2 class="reveal">When to Use Which?</h2>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card reveal">
+            <p class="body-md"><strong style="color:var(--cyan);">Claude.ai</strong>: use when you want to think something through or get a draft.</p>
+          </div>
+          <div class="card reveal">
+            <p class="body-md"><strong style="color:var(--ink);">Claude Cowork</strong>: use when you want help with desktop tasks and documents.</p>
+          </div>
+          <div class="card-acid reveal">
+            <p class="body-md"><strong style="color:var(--acid);">Claude Code</strong>: use when you want Claude working inside a technical project.</p>
+          </div>
         </div>
-        <div style="position: relative; min-height: 100vh;">
-            <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="action">
-        </div>
+      </div>
     </div>
+    <div class="split-right">
+      <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="decision" style="filter:grayscale(0.55) contrast(1.1) brightness(0.66);" />
+    </div>
+  </div>
 </section>
 
-<!-- 16. How It Actually Works: Timeline over image -->
-<section id="sec-16" data-nav="16" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="workflow">
-        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55);"></div>
-    </div>
-    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
-        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">The Loop</p>
-        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 32px;">How It Actually Works</h2>
-        <div style="display: flex; flex-direction: column; gap: 14px; max-width: 850px;">
-            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 16px; background: rgba(255,255,255,0.95);">
-                <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">1</div>
-                <p class="body-md" style="color: var(--text);"><strong>Open a project.</strong> Navigate to your folder in the terminal.</p>
-            </div>
-            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 16px; background: rgba(255,255,255,0.95);">
-                <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">2</div>
-                <p class="body-md" style="color: var(--text);"><strong>Claude scans files.</strong> It reads the structure to understand what it's working with.</p>
-            </div>
-            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 16px; background: rgba(255,255,255,0.95);">
-                <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">3</div>
-                <p class="body-md" style="color: var(--text);"><strong>You tell it the goal.</strong> Describe what you want built or fixed.</p>
-            </div>
-            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 16px; background: rgba(255,255,255,0.95);">
-                <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">4</div>
-                <p class="body-md" style="color: var(--text);"><strong>Claude takes action.</strong> It edits files, runs commands, and asks for your approval.</p>
-            </div>
-            <div class="screenshot-hint reveal-up" style="margin-top: 6px;">
-                <div class="screenshot-hint-icon"><i class="ph ph-monitor"></i></div>
-                <strong>[Add screenshot here]</strong>
-                <p>A real Claude Code session mid-task: the conversation, a tool call, and the approval prompt side by side</p>
-            </div>
+
+<!-- ── 5. WHAT IS THE TERMINAL ───────────────────────────────── -->
+<section id="sec-terminal" data-nav="terminal" style="min-height:100vh;display:flex;align-items:center;">
+  <div style="position:absolute;inset:0;z-index:0;">
+    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="terminal" style="filter:grayscale(0.72) contrast(1.1) brightness(0.46);" />
+    <div style="position:absolute;inset:0;background:rgba(7,8,7,0.60);"></div>
+  </div>
+  <div style="position:relative;z-index:2;padding:0 28px;width:100%;">
+    <div class="section-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:5vw;align-items:center;">
+      <div class="terminal-panel reveal" style="position:relative;">
+        <div class="terminal-topline"><span></span><span></span><span></span></div>
+        <div class="terminal-lines">
+          <p><span>$</span> ls</p>
+          <p class="t-out">docs &nbsp; src &nbsp; tests &nbsp; package.json</p>
+          <p><span>$</span> mkdir new-folder</p>
+          <p><span>$</span> npm run dev</p>
+          <p class="t-cyan">&gt; Server running on localhost:3000</p>
         </div>
+      </div>
+      <div>
+        <p class="section-kicker reveal">The Workspace</p>
+        <h2 class="reveal" style="color:var(--ink);">What is the Terminal?</h2>
+        <p class="body-lg reveal" style="margin-bottom:16px;">The terminal is a <strong style="color:var(--ink);">text-based control panel</strong> for your computer. Instead of clicking buttons, you type instructions.</p>
+        <p class="body-md reveal">For non-technical people: it looks like a blank screen with a blinking cursor. After a few tries, the directness starts to make sense. You can see exactly what the computer is doing.</p>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- 6. Vibe Coding: Split heavy photo -->
-<section id="sec-6" data-nav="6" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh;">
-        <div style="position: relative; min-height: 100vh;">
-            <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="creative">
-        </div>
-        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
-            <div style="max-width: 520px;">
-                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">The Movement</p>
-                <h2 class="display-lg reveal-up" style="margin-bottom: 24px;">Vibe Coding:<br>Describe, Don't Type</h2>
-                <div class="panel reveal-up" style="margin-bottom: 20px;">
-                    <p class="body-lg quote-block" style="color: var(--text);">"I want a notes app that feels like writing in a beautiful notebook."</p>
-                </div>
-                <p class="body-md reveal-up">That's it. Claude figures out the files, the code, and the commands.</p>
-                <p class="body-md reveal-up" style="margin-top: 12px;">You iterate on <span class="hl">feel</span> first: colors, spacing, animations. Then function.</p>
-            </div>
-        </div>
+
+<!-- ── 6. WHY THE TERMINAL ───────────────────────────────────── -->
+<section id="sec-why-terminal" data-nav="why-terminal" class="section-band" style="background:var(--carbon);border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <div class="section-inner" style="max-width:900px;text-align:center;">
+    <p class="section-kicker reveal">Developer Environment</p>
+    <h2 class="reveal" style="max-width:18ch;margin:0 auto 28px;">Why Use the Terminal?</h2>
+    <p class="body-lg reveal" style="margin-bottom:32px;">The terminal is where developers already build, test, and run things. Claude Code lives there too, so it can read and edit your actual files rather than describing what you should do yourself.</p>
+    <div class="card-acid reveal" style="display:inline-block;text-align:left;max-width:640px;">
+      <p class="body-md">By living in the terminal, Claude doesn't just write code in a browser window for you to copy-paste. It writes the code directly into your actual files.</p>
     </div>
+  </div>
 </section>
 
-<!-- NEW: Prerequisites -->
-<section id="sec-prereq" data-nav="prereq" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh;">
-        <div style="position: relative; min-height: 100vh;">
-            <img src="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="prerequisites">
+
+<!-- ── 7. AI THAT TAKES ACTION ───────────────────────────────── -->
+<section id="sec-action" data-nav="action" style="min-height:100vh;display:flex;align-items:center;">
+  <div class="split">
+    <div class="split-left">
+      <div class="split-copy">
+        <p class="section-kicker reveal">The Shift</p>
+        <h2 class="reveal">AI That Takes Action</h2>
+        <p class="body-lg reveal" style="margin-bottom:32px;">Normal AI gives suggestions. Claude Code can also <span class="hl">take action</span> inside your project: editing files, checking code, running steps.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="card reveal">
+            <p style="font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--soft);margin-bottom:8px;">Before</p>
+            <p class="body-md">Prompt → Copy → Paste → Fix</p>
+          </div>
+          <div class="card-acid reveal">
+            <p style="font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--acid);margin-bottom:8px;">Now</p>
+            <p class="body-md">Delegate → Approve → Review</p>
+          </div>
         </div>
-        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
-            <div style="max-width: 520px;">
-                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">Before You Start</p>
-                <h2 class="display-lg reveal-up" style="margin-bottom: 24px;">What You Actually Need</h2>
-                <p class="body-lg reveal-up" style="margin-bottom: 24px;">Before running a single command, make sure you have these in place.</p>
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <div class="panel reveal-up" style="display: flex; align-items: flex-start; gap: 16px;">
-                        <div style="min-width: 40px; height: 40px; border-radius: 10px; background: var(--accent-dim); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;"><i class="ph ph-user-circle"></i></div>
-                        <p class="body-md" style="color: var(--text);"><strong>An Anthropic account</strong> - claude.ai Pro or Max. Claude Code is not available on the free plan.</p>
-                    </div>
-                    <div class="panel reveal-up" style="display: flex; align-items: flex-start; gap: 16px;">
-                        <div style="min-width: 40px; height: 40px; border-radius: 10px; background: var(--accent-dim); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;"><i class="ph ph-package"></i></div>
-                        <p class="body-md" style="color: var(--text);"><strong>Node.js and npm installed</strong> - the engine Claude Code runs on. Download from nodejs.org if you don't have it.</p>
-                    </div>
-                    <div class="panel reveal-up" style="display: flex; align-items: flex-start; gap: 16px;">
-                        <div style="min-width: 40px; height: 40px; border-radius: 10px; background: var(--accent-dim); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;"><i class="ph ph-folder-open"></i></div>
-                        <p class="body-md" style="color: var(--text);"><strong>A project folder</strong> - Claude Code works best when it has real files to read. Don't point it at an empty desktop.</p>
-                    </div>
-                    <div class="panel reveal-up" style="background: var(--accent-dim);">
-                        <p class="body-md" style="color: var(--text);">Windows users: install WSL (Windows Subsystem for Linux) first. It makes everything smoother.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+    <div class="split-right">
+      <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="action" style="filter:grayscale(0.6) contrast(1.1) brightness(0.6);" />
+    </div>
+  </div>
 </section>
 
-<!-- 17. Setup: Full photo left, content right -->
-<section id="sec-17" data-nav="17" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh;">
-        <div style="position: relative; min-height: 100vh;">
-            <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="setup">
+
+<!-- ── 8. HOW IT ACTUALLY WORKS ──────────────────────────────── -->
+<section id="sec-how" data-nav="how" style="min-height:100vh;display:flex;align-items:center;position:relative;">
+  <div style="position:absolute;inset:0;z-index:0;">
+    <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="workflow" style="filter:grayscale(0.72) contrast(1.1) brightness(0.44);" />
+    <div style="position:absolute;inset:0;background:rgba(7,8,7,0.66);"></div>
+  </div>
+  <div style="position:relative;z-index:2;padding:10vh 28px;width:100%;">
+    <div class="section-inner">
+      <p class="section-kicker reveal">The Loop</p>
+      <h2 class="reveal" style="color:var(--ink);margin-bottom:36px;">How It Actually Works</h2>
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:760px;">
+        <div class="card reveal" style="display:flex;align-items:center;gap:18px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:rgba(183,255,42,0.12);border:1px solid rgba(183,255,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--acid);flex-shrink:0;">1</div>
+          <p class="body-md"><strong style="color:var(--ink);">Open a project.</strong> Navigate to your folder in the terminal.</p>
         </div>
-        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
-            <div style="max-width: 520px;">
-                <p class="label reveal-up" style="color: var(--accent-2); margin-bottom: 14px;">Quick Start</p>
-                <h2 class="display-lg reveal-up" style="margin-bottom: 24px;">Setup:<br>Simple, Not Always Fast</h2>
-                <p class="body-lg reveal-up" style="margin-bottom: 24px;">Three commands. But on Windows especially, getting Node.js, npm, and the terminal playing nicely can take a while. Budget 20–30 minutes your first time.</p>
-                <div class="terminal reveal-up" style="margin-bottom: 20px;">
-                    <div class="terminal-dots"><div class="dot-red"></div><div class="dot-yel"></div><div class="dot-grn"></div></div>
-                    <div style="color: var(--muted);">$ npm install -g @anthropic-ai/claude-code</div>
-                    <div style="color: var(--muted); margin-top: 8px;">$ cd any-project-folder</div>
-                    <div style="color: var(--muted); margin-top: 8px;">$ claude</div>
-                    <div style="color: var(--accent-2); margin-top: 8px;">> Ready to work.</div>
-                </div>
-                <p class="body-md reveal-up" style="color: var(--text);">Mac users: usually smooth. Windows users: expect some friction. It's worth it once it's done.</p>
-            </div>
+        <div class="card reveal" style="display:flex;align-items:center;gap:18px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:rgba(183,255,42,0.12);border:1px solid rgba(183,255,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--acid);flex-shrink:0;">2</div>
+          <p class="body-md"><strong style="color:var(--ink);">Claude scans files.</strong> It reads the structure to understand what it's working with.</p>
         </div>
+        <div class="card reveal" style="display:flex;align-items:center;gap:18px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:rgba(183,255,42,0.12);border:1px solid rgba(183,255,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--acid);flex-shrink:0;">3</div>
+          <p class="body-md"><strong style="color:var(--ink);">You tell it the goal.</strong> Describe what you want built or fixed.</p>
+        </div>
+        <div class="card reveal" style="display:flex;align-items:center;gap:18px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:rgba(183,255,42,0.12);border:1px solid rgba(183,255,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--acid);flex-shrink:0;">4</div>
+          <p class="body-md"><strong style="color:var(--ink);">Claude takes action.</strong> It edits files, runs commands, and asks for your approval.</p>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- NEW: Context Management -->
-<section id="sec-context" data-nav="context" style="min-height: 90vh; display: flex; align-items: center; padding: 0; position: relative;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="context">
-        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.52);"></div>
+
+<!-- ── 9. VIBE CODING ────────────────────────────────────────── -->
+<section id="sec-vibe" data-nav="vibe" style="min-height:100vh;display:flex;align-items:center;">
+  <div class="split">
+    <div class="split-right" style="order:-1;">
+      <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="creative" style="filter:grayscale(0.55) contrast(1.1) brightness(0.64);" />
     </div>
-    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
-        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Session Hygiene</p>
-        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 32px;">Managing Your Context</h2>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1100px;">
-            <div class="panel reveal-up">
-                <p class="display-md" style="font-family: var(--font-mono); color: var(--accent); font-size: 1.4rem; margin-bottom: 10px;">/clear</p>
-                <p class="body-md" style="color: var(--text);">Wipes the conversation history without closing Claude. Use it between unrelated tasks - it's the highest-ROI habit you can build.</p>
-            </div>
-            <div class="panel reveal-up">
-                <p class="display-md" style="font-family: var(--font-mono); color: var(--accent); font-size: 1.4rem; margin-bottom: 10px;">/compact</p>
-                <p class="body-md" style="color: var(--text);">Summarises the conversation so far to free up context space. Use this mid-session when you want to keep going without starting over.</p>
-            </div>
-            <div class="panel reveal-up">
-                <p class="display-md" style="color: var(--accent); font-size: 1.1rem; font-weight: 600; margin-bottom: 10px;">Fresh Session</p>
-                <p class="body-md" style="color: var(--text);">After two failed corrections, just start a new session. Give Claude a one-paragraph recap. A clean start beats a broken conversation every time.</p>
-            </div>
+    <div class="split-left">
+      <div class="split-copy">
+        <p class="section-kicker reveal">The Movement</p>
+        <h2 class="reveal">Vibe Coding:<br>Describe, Don't Type</h2>
+        <div class="card reveal" style="margin-bottom:20px;background:var(--graphite);">
+          <p class="body-lg" style="color:var(--ink);font-style:italic;">"I want a notes app that feels like writing in a beautiful notebook."</p>
         </div>
-        <p class="body-md reveal-up text-white-muted" style="margin-top: 28px; max-width: 700px;">Think of context like RAM. The more you load in, the slower and fuzzier things get. Keep sessions focused and short.</p>
+        <p class="body-md reveal" style="margin-bottom:12px;">That's it. Claude figures out the files, the code, and the commands.</p>
+        <p class="body-md reveal">You iterate on <span class="hl">feel</span> first: colors, spacing, animations. Then function.</p>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- 10. Plan Mode: Photo grid -->
-<section id="sec-10" data-nav="10" style="min-height: 100vh; display: flex; align-items: center; padding: 10vh 6vw;">
-    <div class="content" style="max-width: 1200px; margin: 0 auto;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4vw; align-items: center;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 55vh;">
-                <div style="border-radius: 4px; overflow: hidden;"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="plan"></div>
-                <div style="border-radius: 4px; overflow: hidden; margin-top: 24px;"><img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="sketch"></div>
-            </div>
-            <div>
-                <div class="section-label reveal-up">
-                    <div class="section-label-icon orange"><i class="ph ph-shield-check"></i></div>
-                    <span class="label" style="color: var(--accent);">Safety Feature</span>
-                </div>
-                <h2 class="display-lg reveal-up" style="margin-bottom: 24px;">Plan Mode:<br>Look Before You Leap</h2>
-                <p class="body-lg reveal-up" style="margin-bottom: 20px;">Before touching any files, Claude can show you a <span class="hl">plain-English proposal</span>, like an architect drawing blueprints before construction.</p>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <div class="panel reveal-up" style="padding: 16px 20px;"><p class="body-md"><strong style="color: var(--accent-2);">1.</strong> Claude proposes a step-by-step plan</p></div>
-                    <div class="panel reveal-up" style="padding: 16px 20px;"><p class="body-md"><strong style="color: var(--accent-2);">2.</strong> You review and approve</p></div>
-                    <div class="panel reveal-up" style="padding: 16px 20px;"><p class="body-md"><strong style="color: var(--accent-2);">3.</strong> Claude executes and asks for checkpoints</p></div>
-                    <div class="screenshot-hint reveal-up" style="margin-top: 4px;">
-                        <div class="screenshot-hint-icon"><i class="ph ph-list-numbers"></i></div>
-                        <strong>[Add screenshot here]</strong>
-                        <p>Claude Code plan mode output showing the numbered step-by-step proposal before any files are touched</p>
-                    </div>
-                </div>
-            </div>
+
+<!-- ── 10. PREREQUISITES ─────────────────────────────────────── -->
+<section id="sec-prereq" data-nav="prereq" style="min-height:100vh;display:flex;align-items:center;">
+  <div class="split">
+    <div class="split-left">
+      <div class="split-copy">
+        <p class="section-kicker reveal">Before You Start</p>
+        <h2 class="reveal">What You Actually Need</h2>
+        <p class="body-lg reveal" style="margin-bottom:24px;">Before running a single command, make sure you have these in place.</p>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card reveal">
+            <h3 style="margin-bottom:6px;">An Anthropic account</h3>
+            <p class="body-md">Claude.ai Pro or Max. Claude Code is not available on the free plan.</p>
+          </div>
+          <div class="card reveal">
+            <h3 style="margin-bottom:6px;">Node.js and npm</h3>
+            <p class="body-md">The engine Claude Code runs on. Download from nodejs.org if you don't have it.</p>
+          </div>
+          <div class="card reveal">
+            <h3 style="margin-bottom:6px;">A project folder</h3>
+            <p class="body-md">Claude Code works best when it has real files to read. Don't point it at an empty desktop.</p>
+          </div>
+          <div class="card-acid reveal">
+            <p class="body-md">Windows users: install WSL (Windows Subsystem for Linux) first. It makes everything smoother.</p>
+          </div>
         </div>
+      </div>
     </div>
+    <div class="split-right">
+      <img src="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="prerequisites" style="filter:grayscale(0.55) contrast(1.08) brightness(0.64);" />
+    </div>
+  </div>
 </section>
 
-<!-- 22. How to Talk: Photo top strip -->
-<section id="sec-22" data-nav="22" style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 10vh 6vw;">
-    <div style="height: 30vh; border-radius: 6px; overflow: hidden; max-width: 1200px; width: 100%; margin: 0 auto 6vh;">
-        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=1600&q=80" class="img-cover" alt="communication">
+
+<!-- ── 11. SETUP ─────────────────────────────────────────────── -->
+<section id="sec-setup" data-nav="setup" style="min-height:100vh;display:flex;align-items:center;">
+  <div class="split">
+    <div class="split-right" style="order:-1;">
+      <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="setup" style="filter:grayscale(0.55) contrast(1.1) brightness(0.6);" />
     </div>
-    <div class="content" style="max-width: 1000px; margin: 0 auto;">
-        <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px; text-align: center;">Better Prompting</p>
-        <h2 class="display-lg reveal-up" style="margin-bottom: 28px; text-align: center;">How to Talk to Claude Code</h2>
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
-            <div class="panel reveal-up" style="text-align: center;">
-                <p class="display-md" style="color: var(--accent); font-size: 1.6rem; margin-bottom: 8px;">1</p>
-                <p class="body-md" style="color: var(--text); font-weight: 500;">The goal</p>
-                <p class="body-md" style="font-size: 0.85rem;">What you want done</p>
-            </div>
-            <div class="panel reveal-up" style="text-align: center;">
-                <p class="display-md" style="color: var(--accent); font-size: 1.6rem; margin-bottom: 8px;">2</p>
-                <p class="body-md" style="color: var(--text); font-weight: 500;">The context</p>
-                <p class="body-md" style="font-size: 0.85rem;">Which files matter</p>
-            </div>
-            <div class="panel reveal-up" style="text-align: center;">
-                <p class="display-md" style="color: var(--accent); font-size: 1.6rem; margin-bottom: 8px;">3</p>
-                <p class="body-md" style="color: var(--text); font-weight: 500;">The limits</p>
-                <p class="body-md" style="font-size: 0.85rem;">What not to change</p>
-            </div>
-            <div class="panel reveal-up" style="text-align: center;">
-                <p class="display-md" style="color: var(--accent); font-size: 1.6rem; margin-bottom: 8px;">4</p>
-                <p class="body-md" style="color: var(--text); font-weight: 500;">Success</p>
-                <p class="body-md" style="font-size: 0.85rem;">What it should look like</p>
-            </div>
+    <div class="split-left">
+      <div class="split-copy">
+        <p class="section-kicker reveal">Quick Start</p>
+        <h2 class="reveal">Setup:<br>Simple, Not Always Fast</h2>
+        <p class="body-lg reveal" style="margin-bottom:24px;">Three commands. But on Windows especially, getting Node.js, npm, and the terminal playing nicely can take a while. Budget 20–30 minutes your first time.</p>
+        <div class="terminal-panel reveal" style="margin-bottom:20px;">
+          <div class="terminal-topline"><span></span><span></span><span></span></div>
+          <div class="terminal-lines">
+            <p><span>$</span> npm install -g @anthropic-ai/claude-code</p>
+            <p><span>$</span> cd any-project-folder</p>
+            <p><span>$</span> claude</p>
+            <p class="t-acid">&gt; Ready to work.</p>
+          </div>
         </div>
-        <p class="body-md reveal-up" style="text-align: center; margin-top: 24px; color: var(--accent);">Don't just say "make it better." Say exactly what, where, and how.</p>
+        <p class="body-md reveal">Mac users: usually smooth. Windows users: expect some friction. It's worth it once it's done.</p>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- 21. /init: Big type over photo -->
-<section id="sec-21" data-nav="21" style="min-height: 80vh; display: flex; align-items: center; padding: 0; position: relative;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="magic">
-        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.45);"></div>
-    </div>
-    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%; text-align: center;">
-        <p class="label reveal-up text-white-muted" style="margin-bottom: 12px;">The Magic Command</p>
-        <h2 class="display-xl reveal-up text-white" style="font-size: clamp(5rem, 14vw, 10rem); margin-bottom: 20px;">/init</h2>
-        <div class="panel reveal-up" style="display: inline-block; max-width: 650px; text-align: left;">
-            <p class="body-lg" style="margin-bottom: 14px;">Run <span style="font-family: var(--font-mono); color: var(--text); font-weight: 500;">/init</span> once the project has some real files in it. Claude will scan your workspace and create a project cheat sheet.</p>
-            <p class="body-md" style="color: var(--text); font-weight: 500;">Pro Tip: Avoid running it on a totally empty folder! Give Claude some files or boilerplate code to read first.</p>
+
+<!-- ── 12. CONTEXT MANAGEMENT ────────────────────────────────── -->
+<section id="sec-context" data-nav="context" style="min-height:90vh;display:flex;align-items:center;position:relative;">
+  <div style="position:absolute;inset:0;z-index:0;">
+    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="context" style="filter:grayscale(0.72) contrast(1.08) brightness(0.44);" />
+    <div style="position:absolute;inset:0;background:rgba(7,8,7,0.66);"></div>
+  </div>
+  <div style="position:relative;z-index:2;padding:10vh 28px;width:100%;">
+    <div class="section-inner">
+      <p class="section-kicker reveal">Session Hygiene</p>
+      <h2 class="reveal" style="color:var(--ink);margin-bottom:36px;">Managing Your Context</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1000px;" class="three-col">
+        <div class="card reveal">
+          <p style="font-family:'JetBrains Mono',monospace;font-size:1.3rem;color:var(--acid);margin-bottom:12px;">/clear</p>
+          <p class="body-md">Wipes the conversation history without closing Claude. Use it between unrelated tasks. It's the highest-ROI habit you can build.</p>
         </div>
-        <p class="body-md reveal-up text-white-muted" style="margin-top: 16px;">Pair it with a <span style="font-family: var(--font-mono); color: #fff;">CLAUDE.md</span> brain file for best results.</p>
+        <div class="card reveal">
+          <p style="font-family:'JetBrains Mono',monospace;font-size:1.3rem;color:var(--acid);margin-bottom:12px;">/compact</p>
+          <p class="body-md">Summarises the conversation to free up context space. Use mid-session when you want to keep going without starting over.</p>
+        </div>
+        <div class="card reveal">
+          <p style="font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:12px;">Fresh Session</p>
+          <p class="body-md">After two failed corrections, start a new session. Give Claude a one-paragraph recap. A clean start beats a broken conversation every time.</p>
+        </div>
+      </div>
+      <p class="body-md reveal" style="margin-top:28px;max-width:640px;color:var(--muted);">Think of context like RAM. The more you load in, the slower and fuzzier things get. Keep sessions focused and short.</p>
     </div>
+  </div>
 </section>
 
-<!-- 19. Rules: Photo grid left, cards right -->
-<section id="sec-19" data-nav="19" style="min-height: 100vh; display: flex; align-items: center; padding: 10vh 6vw;">
-    <div class="content" style="max-width: 1200px; margin: 0 auto;">
-        <div style="display: grid; grid-template-columns: 1fr 1.1fr; gap: 4vw; align-items: center;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 55vh;">
-                <div style="border-radius: 4px; overflow: hidden;"><img src="https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=500&q=80" class="img-cover" alt="notes"></div>
-                <div style="border-radius: 4px; overflow: hidden; margin-top: 30px;"><img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=500&q=80" class="img-cover" alt="rules"></div>
-            </div>
-            <div>
-                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">Configuration</p>
-                <h2 class="display-lg reveal-up" style="margin-bottom: 24px;">Personal Rules vs.<br>Project Rules</h2>
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <div class="panel reveal-up" style="background: var(--accent-2-dim); border: 1px solid rgba(15,118,110,0.15);">
-                        <p class="label" style="color: var(--accent-2); margin-bottom: 6px;">Global: ~/.claude.md</p>
-                        <p class="body-md" style="color: var(--text);">Your personal defaults. Think of it as a <span class="hl">brain file</span>. Keep it to ~1 page.</p>
-                    </div>
-                    <div class="panel reveal-up" style="background: var(--accent-dim); border: 1px solid rgba(217,78,31,0.15);">
-                        <p class="label" style="color: var(--accent); margin-bottom: 6px;">Project: /project-folder/CLAUDE.md</p>
-                        <p class="body-md" style="color: var(--text);">Instructions for one specific project so Claude follows the right rules.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+<!-- ── 13. PLAN MODE ─────────────────────────────────────────── -->
+<section id="sec-plan" data-nav="plan" class="section-band" style="background:var(--carbon);border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <div class="section-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:6vw;align-items:center;" class="two-col">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;height:52vh;">
+      <div style="border-radius:6px;overflow:hidden;"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="plan" style="filter:grayscale(0.6) contrast(1.1) brightness(0.7);" /></div>
+      <div style="border-radius:6px;overflow:hidden;margin-top:24px;"><img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="sketch" style="filter:grayscale(0.6) contrast(1.1) brightness(0.7);" /></div>
     </div>
+    <div>
+      <p class="section-kicker reveal">Safety Feature</p>
+      <h2 class="reveal">Plan Mode:<br>Look Before You Leap</h2>
+      <p class="body-lg reveal" style="margin-bottom:24px;">Before touching any files, Claude can write out a <span class="hl">plain-English plan</span> for you to read and approve. Nothing changes until you say so.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="card reveal" style="padding:16px 20px;">
+          <p class="body-md"><strong style="color:var(--acid);">1.</strong> Claude proposes a step-by-step plan</p>
+        </div>
+        <div class="card reveal" style="padding:16px 20px;">
+          <p class="body-md"><strong style="color:var(--acid);">2.</strong> You review and approve</p>
+        </div>
+        <div class="card reveal" style="padding:16px 20px;">
+          <p class="body-md"><strong style="color:var(--acid);">3.</strong> Claude executes and asks for checkpoints</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- 20. Skills: Full-bleed image right -->
-<section id="sec-20" data-nav="20" style="min-height: 90vh; display: flex; align-items: center; padding: 0;">
-    <div style="display: grid; grid-template-columns: 1.1fr 1fr; width: 100%; min-height: 90vh;">
-        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
-            <div style="max-width: 520px;">
-                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">Power Feature</p>
-                <h2 class="display-lg reveal-up" style="margin-bottom: 20px;">Working with<br>Skills</h2>
-                <p class="body-lg reveal-up" style="margin-bottom: 20px;">Skills are like <span class="hl">reusable playbooks</span>. Instead of explaining the same workflow again and again, you give Claude a repeatable method for certain tasks.</p>
-                <div class="panel reveal-up">
-                    <p class="body-md" style="color: var(--text);">If you do the same SEO audit or code-formatting task every week, save it as a Skill so Claude runs the playbook perfectly every time.</p>
-                </div>
-            </div>
-        </div>
-        <div style="position: relative; min-height: 90vh;">
-            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="skills">
-        </div>
+
+<!-- ── 14. HOW TO TALK TO CLAUDE CODE ───────────────────────── -->
+<section id="sec-talk" data-nav="talk" class="section-band">
+  <div class="section-inner">
+    <div style="height:30vh;border-radius:6px;overflow:hidden;margin-bottom:6vh;">
+      <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=1600&q=80" class="img-cover" alt="communication" style="filter:grayscale(0.55) contrast(1.1) brightness(0.64);" />
     </div>
+    <p class="section-kicker reveal" style="text-align:center;">Better Prompting</p>
+    <h2 class="reveal" style="text-align:center;margin-bottom:36px;">How to Talk to Claude Code</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;" class="four-col">
+      <div class="card reveal" style="text-align:center;">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:1.5rem;color:var(--acid);margin-bottom:10px;">1</p>
+        <p style="font-weight:700;color:var(--ink);margin-bottom:6px;">The goal</p>
+        <p class="body-md">What you want done</p>
+      </div>
+      <div class="card reveal" style="text-align:center;">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:1.5rem;color:var(--acid);margin-bottom:10px;">2</p>
+        <p style="font-weight:700;color:var(--ink);margin-bottom:6px;">The context</p>
+        <p class="body-md">Which files matter</p>
+      </div>
+      <div class="card reveal" style="text-align:center;">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:1.5rem;color:var(--acid);margin-bottom:10px;">3</p>
+        <p style="font-weight:700;color:var(--ink);margin-bottom:6px;">The limits</p>
+        <p class="body-md">What not to change</p>
+      </div>
+      <div class="card reveal" style="text-align:center;">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:1.5rem;color:var(--acid);margin-bottom:10px;">4</p>
+        <p style="font-weight:700;color:var(--ink);margin-bottom:6px;">Success</p>
+        <p class="body-md">What it should look like</p>
+      </div>
+    </div>
+    <p class="body-md reveal" style="text-align:center;color:var(--acid);">Don't just say "make it better." Say exactly what, where, and how.</p>
+  </div>
 </section>
 
-<!-- NEW: MCP -->
-<section id="sec-mcp" data-nav="mcp" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
-    <div style="display: grid; grid-template-columns: 1.1fr 1fr; width: 100%; min-height: 100vh;">
-        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
-            <div style="max-width: 540px;">
-                <p class="label reveal-up" style="color: var(--accent-2); margin-bottom: 14px;">Superpower</p>
-                <h2 class="display-lg reveal-up" style="margin-bottom: 20px;">MCP: Connect Claude to Everything</h2>
-                <p class="body-lg reveal-up" style="margin-bottom: 24px;">MCP (Model Context Protocol) lets Claude Code plug into external tools and services. Instead of working only with local files, it can reach out to the world.</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <div class="panel reveal-up" style="text-align: center; padding: 14px;">
-                        <p class="body-md" style="font-weight: 600; color: var(--accent-2);">Gmail &amp; Calendar</p>
-                        <p class="body-md" style="font-size: 0.85rem;">Read, draft, and send.</p>
-                    </div>
-                    <div class="panel reveal-up" style="text-align: center; padding: 14px;">
-                        <p class="body-md" style="font-weight: 600; color: var(--accent-2);">Web Browse</p>
-                        <p class="body-md" style="font-size: 0.85rem;">Research while it works.</p>
-                    </div>
-                    <div class="panel reveal-up" style="text-align: center; padding: 14px;">
-                        <p class="body-md" style="font-weight: 600; color: var(--accent-2);">Slack &amp; Notion</p>
-                        <p class="body-md" style="font-size: 0.85rem;">Post, read, and update.</p>
-                    </div>
-                    <div class="panel reveal-up" style="text-align: center; padding: 14px;">
-                        <p class="body-md" style="font-weight: 600; color: var(--accent-2);">Databases &amp; APIs</p>
-                        <p class="body-md" style="font-size: 0.85rem;">Query and write directly.</p>
-                    </div>
-                </div>
-                <div class="panel reveal-up" style="margin-top: 14px; background: var(--accent-2-dim); border: 1px solid rgba(15,118,110,0.2);">
-                    <p class="body-md" style="color: var(--text);">MCP servers are installed once and available every session. The community is building new ones daily.</p>
-                </div>
-                <div class="screenshot-hint reveal-up" style="margin-top: 16px;">
-                    <div class="screenshot-hint-icon"><i class="ph ph-graph"></i></div>
-                    <strong>[Add diagram here]</strong>
-                    <p>Hub-and-spoke diagram: Claude Code in the centre, arrows out to Gmail, Slack, Web, Database, Calendar</p>
-                </div>
-            </div>
-        </div>
-        <div style="position: relative; min-height: 100vh;">
-            <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="connections">
-        </div>
+
+<!-- ── 15. /init ─────────────────────────────────────────────── -->
+<section id="sec-init" data-nav="init" style="min-height:80vh;display:flex;align-items:center;position:relative;">
+  <div style="position:absolute;inset:0;z-index:0;">
+    <img src="https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="init" style="filter:grayscale(0.72) contrast(1.08) brightness(0.44);" />
+    <div style="position:absolute;inset:0;background:rgba(7,8,7,0.60);"></div>
+    <div style="position:absolute;inset:0;opacity:0.18;background-image:linear-gradient(rgba(244,241,234,0.12) 1px,transparent 1px),linear-gradient(90deg,rgba(244,241,234,0.1) 1px,transparent 1px);background-size:84px 84px;pointer-events:none;"></div>
+  </div>
+  <div style="position:relative;z-index:2;padding:10vh 28px;width:100%;text-align:center;">
+    <p class="section-kicker reveal">The Magic Command</p>
+    <h2 class="reveal" style="font-size:clamp(5rem,14vw,10rem);color:var(--acid);margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:-0.02em;">/init</h2>
+    <div class="card reveal" style="display:inline-block;max-width:620px;text-align:left;">
+      <p class="body-lg" style="color:var(--ink);margin-bottom:14px;">Run <code>/init</code> once the project has some real files in it. Claude will scan your workspace and create a project cheat sheet.</p>
+      <p class="body-md" style="color:var(--acid);font-weight:600;">Pro Tip: Avoid running it on an empty folder. Give Claude some files or boilerplate code to read first.</p>
     </div>
+    <p class="body-md reveal" style="margin-top:18px;color:var(--muted);">Pair it with a <code>CLAUDE.md</code> brain file for best results.</p>
+  </div>
 </section>
 
-<!-- NEW: Subagents -->
-<section id="sec-subagents" data-nav="subagents" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="subagents">
-        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.48);"></div>
-    </div>
-    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
-        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Max Plan</p>
-        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 20px;">Subagents: Many Claudes, One Goal</h2>
-        <p class="body-lg reveal-up text-white-muted" style="margin-bottom: 32px; max-width: 680px;">On the Max plan, Claude Code can spin up multiple agents working in parallel. Each one tackles a different part of the problem simultaneously.</p>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1000px;">
-            <div class="panel reveal-up" style="text-align: center;">
-                <p class="display-md" style="color: var(--accent); font-size: 2rem; margin-bottom: 10px;">Agent 1</p>
-                <p class="body-md" style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Research</p>
-                <p class="body-md" style="font-size: 0.85rem;">Scrapes the web, reads docs, pulls data.</p>
-            </div>
-            <div class="panel reveal-up" style="text-align: center;">
-                <p class="display-md" style="color: var(--accent); font-size: 2rem; margin-bottom: 10px;">Agent 2</p>
-                <p class="body-md" style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Build</p>
-                <p class="body-md" style="font-size: 0.85rem;">Writes code, edits files, runs commands.</p>
-            </div>
-            <div class="panel reveal-up" style="text-align: center;">
-                <p class="display-md" style="color: var(--accent); font-size: 2rem; margin-bottom: 10px;">Agent 3</p>
-                <p class="body-md" style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Review</p>
-                <p class="body-md" style="font-size: 0.85rem;">Tests the output and checks for errors.</p>
-            </div>
+
+<!-- ── 16. PERSONAL RULES VS PROJECT RULES ───────────────────── -->
+<section id="sec-rules" data-nav="rules" class="section-band" style="background:var(--graphite);border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <div class="section-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:6vw;align-items:center;" class="two-col">
+    <div>
+      <p class="section-kicker reveal">Configuration</p>
+      <h2 class="reveal">Personal Rules vs.<br>Project Rules</h2>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card-cyan reveal">
+          <p style="font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:var(--cyan);margin-bottom:8px;">Global: ~/.claude.md</p>
+          <p class="body-md">Your personal defaults. Think of it as a <span class="hl">brain file</span>. Keep it to ~1 page so Claude doesn't forget what matters.</p>
         </div>
-        <p class="body-md reveal-up text-white-muted" style="margin-top: 28px;">This is why the Max plan exists. One Claude is powerful. Three working together is a different category of tool.</p>
+        <div class="card-acid reveal">
+          <p style="font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:var(--acid);margin-bottom:8px;">Project: /project-folder/CLAUDE.md</p>
+          <p class="body-md">Instructions for one specific project so Claude follows the right rules every session.</p>
+        </div>
+      </div>
     </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;height:52vh;">
+      <div style="border-radius:6px;overflow:hidden;"><img src="https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=500&q=80" class="img-cover" alt="notes" style="filter:grayscale(0.55) contrast(1.1) brightness(0.66);" /></div>
+      <div style="border-radius:6px;overflow:hidden;margin-top:30px;"><img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=500&q=80" class="img-cover" alt="rules" style="filter:grayscale(0.55) contrast(1.1) brightness(0.66);" /></div>
+    </div>
+  </div>
 </section>
 
-<!-- 11. Build Stuff: Full photo + overlay cards -->
-<section id="sec-11" data-nav="11" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="build">
-        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.45);"></div>
-    </div>
-    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
-        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Capabilities</p>
-        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 36px;">Build Stuff with<br>Claude Code</h2>
-        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px;">
-            <div class="panel reveal-up" style="text-align: center;">
-                <div style="font-size: 1.8rem; margin-bottom: 10px; color: var(--accent);"><i class="ph ph-rocket"></i></div>
-                <p class="body-md" style="color: var(--text); font-weight: 500;">Applications</p>
-            </div>
-            <div class="panel reveal-up" style="text-align: center;">
-                <div style="font-size: 1.8rem; margin-bottom: 10px; color: var(--accent-2);"><i class="ph ph-gear"></i></div>
-                <p class="body-md" style="color: var(--text); font-weight: 500;">Workflows</p>
-            </div>
-            <div class="panel reveal-up" style="text-align: center;">
-                <div style="font-size: 1.8rem; margin-bottom: 10px; color: var(--text);"><i class="ph ph-globe"></i></div>
-                <p class="body-md" style="color: var(--text); font-weight: 500;">Websites</p>
-            </div>
-            <div class="panel reveal-up" style="text-align: center;">
-                <div style="font-size: 1.8rem; margin-bottom: 10px; color: var(--accent);"><i class="ph ph-file-text"></i></div>
-                <p class="body-md" style="color: var(--text); font-weight: 500;">Documents</p>
-            </div>
-            <div class="panel reveal-up" style="text-align: center;">
-                <div style="font-size: 1.8rem; margin-bottom: 10px; color: var(--accent-2);"><i class="ph ph-robot"></i></div>
-                <p class="body-md" style="color: var(--text); font-weight: 500;">Scripts</p>
-            </div>
+
+<!-- ── 17. SKILLS ────────────────────────────────────────────── -->
+<section id="sec-skills" data-nav="skills" style="min-height:90vh;display:flex;align-items:center;">
+  <div class="split">
+    <div class="split-left">
+      <div class="split-copy">
+        <p class="section-kicker reveal">Power Feature</p>
+        <h2 class="reveal">Working with Skills</h2>
+        <p class="body-lg reveal" style="margin-bottom:22px;">A Skill is a saved instruction set for a task you run regularly. Instead of re-explaining the process each time, you point Claude at the Skill and it follows the same steps every session.</p>
+        <div class="card reveal">
+          <p class="body-md">Run the same SEO audit or code review every week? Save it once. Claude reads the Skill file and runs it the same way each time.</p>
         </div>
+      </div>
     </div>
+    <div class="split-right">
+      <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="skills" style="filter:grayscale(0.55) contrast(1.1) brightness(0.62);" />
+    </div>
+  </div>
 </section>
 
-<!-- 12. Unexpected Uses: Horizontal scroll over photo -->
-<section id="sec-12" class="horizontal-section" data-nav="12" style="position: relative;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="surprises">
-        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.35);"></div>
+
+<!-- ── 18. MCP ────────────────────────────────────────────────── -->
+<section id="sec-mcp" data-nav="mcp" style="min-height:100vh;display:flex;align-items:center;">
+  <div class="split">
+    <div class="split-right" style="order:-1;">
+      <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="connections" style="filter:grayscale(0.55) contrast(1.1) brightness(0.6);" />
     </div>
-    <div style="position: relative; z-index: 2; padding: 10vh 0; min-height: 100vh; display: flex; flex-direction: column; justify-content: center;">
-        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px; margin-left: 6vw;">Surprising Use Cases</p>
-        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 40px; margin-left: 6vw;">Yes, You Can Use It for This Too</h2>
-        <div class="horizontal-wrapper" style="position: relative; height: 55vh;">
-            <div class="horizontal-track" id="horizontalTrack" style="display: flex; gap: 24px; padding: 0 6vw; width: max-content;">
-                <div class="panel reveal-up" style="width: 340px; flex-shrink: 0; border-radius: 4px;">
-                    <div style="height: 180px; border-radius: 3px; overflow: hidden; margin-bottom: 16px;">
-                        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="wedding">
-                    </div>
-                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 6px; color: var(--accent);">Wedding planning</h4>
-                    <p class="body-md">RSVPs, seating charts, vendor budgets.</p>
-                </div>
-                <div class="panel reveal-up" style="width: 340px; flex-shrink: 0; border-radius: 4px;">
-                    <div style="height: 180px; border-radius: 3px; overflow: hidden; margin-bottom: 16px;">
-                        <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="tax">
-                    </div>
-                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 6px; color: var(--accent-2);">Tax organizer</h4>
-                    <p class="body-md">Searches Gmail, extracts figures, builds overviews.</p>
-                </div>
-                <div class="panel reveal-up" style="width: 340px; flex-shrink: 0; border-radius: 4px;">
-                    <div style="height: 180px; border-radius: 3px; overflow: hidden; margin-bottom: 16px;">
-                        <img src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="running">
-                    </div>
-                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 6px; color: var(--text);">Marathon training</h4>
-                    <p class="body-md">Plans from fitness tracker data and race nutrition.</p>
-                </div>
-                <div class="panel reveal-up" style="width: 340px; flex-shrink: 0; border-radius: 4px;">
-                    <div style="height: 180px; border-radius: 3px; overflow: hidden; margin-bottom: 16px;">
-                        <img src="https://images.unsplash.com/photo-1500051638674-ff996a0ec29e?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="photos">
-                    </div>
-                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 6px; color: var(--accent);">Photo books</h4>
-                    <p class="body-md">Sorts by date and location, creates layouts.</p>
-                </div>
-                <div class="panel reveal-up" style="width: 340px; flex-shrink: 0; border-radius: 4px;">
-                    <div style="height: 180px; border-radius: 3px; overflow: hidden; margin-bottom: 16px;">
-                        <img src="https://images.unsplash.com/photo-1530533718754-001d2668365a?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="recovery">
-                    </div>
-                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 6px; color: var(--accent-2);">File recovery</h4>
-                    <p class="body-md">The viral 512 GB wedding video recovery story.</p>
-                </div>
-                <div class="panel reveal-up" style="width: 340px; flex-shrink: 0; border-radius: 4px;">
-                    <div style="height: 180px; border-radius: 3px; overflow: hidden; margin-bottom: 16px;">
-                        <img src="https://images.unsplash.com/photo-1568952433726-3896e3881c65?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="file conversion">
-                    </div>
-                    <h4 class="display-md" style="font-size: 1.1rem; margin-bottom: 6px; color: var(--accent);">File conversion</h4>
-                    <p class="body-md">Convert any file to any format directly in Claude Code.</p>
-                </div>
-            </div>
+    <div class="split-left">
+      <div class="split-copy">
+        <p class="section-kicker reveal">Superpower</p>
+        <h2 class="reveal">MCP: Connect Claude to Everything</h2>
+        <p class="body-lg reveal" style="margin-bottom:24px;">MCP (Model Context Protocol) connects Claude Code to external tools and services. Rather than working only with local files, it can read your calendar, send a Slack message, or query a database.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div class="card reveal" style="padding:14px;text-align:center;">
+            <p style="font-weight:700;color:var(--cyan);margin-bottom:4px;">Gmail &amp; Calendar</p>
+            <p class="body-md">Read, draft, and send.</p>
+          </div>
+          <div class="card reveal" style="padding:14px;text-align:center;">
+            <p style="font-weight:700;color:var(--cyan);margin-bottom:4px;">Web Browse</p>
+            <p class="body-md">Research while it works.</p>
+          </div>
+          <div class="card reveal" style="padding:14px;text-align:center;">
+            <p style="font-weight:700;color:var(--cyan);margin-bottom:4px;">Slack &amp; Notion</p>
+            <p class="body-md">Post, read, and update.</p>
+          </div>
+          <div class="card reveal" style="padding:14px;text-align:center;">
+            <p style="font-weight:700;color:var(--cyan);margin-bottom:4px;">Databases &amp; APIs</p>
+            <p class="body-md">Query and write directly.</p>
+          </div>
         </div>
+        <div class="card-cyan reveal">
+          <p class="body-md">MCP servers are installed once and work every session from that point on.</p>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- 23. Developer Case Study: Full photo + floating card -->
-<section id="sec-23" data-nav="23" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="developer">
-        <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);"></div>
-    </div>
-    <div class="content" style="position: relative; z-index: 2; padding: 0 6vw; width: 100%;">
-        <div style="max-width: 620px;">
-            <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Case Study</p>
-            <h2 class="display-lg reveal-up text-white" style="margin-bottom: 20px;">The Developer</h2>
-            <div class="panel reveal-up">
-                <p class="body-lg" style="margin-bottom: 16px;">Claude Code doesn't just debug. It ships. A single prompt turns an idea into a working product, end to end.</p>
-                <p class="body-md" style="margin-bottom: 10px;"><a href="https://taskflow-pi-dun.vercel.app/" target="_blank" style="color: var(--accent); font-weight: 600;">Built a task management app →</a></p>
-                <p class="body-md"><a href="https://nutriplan-snowy.vercel.app/" target="_blank" style="color: var(--accent); font-weight: 600;">Built a nutrition planner app →</a></p>
-            </div>
+
+<!-- ── 19. SUBAGENTS ─────────────────────────────────────────── -->
+<section id="sec-subagents" data-nav="subagents" style="min-height:100vh;display:flex;align-items:center;position:relative;">
+  <div style="position:absolute;inset:0;z-index:0;">
+    <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="subagents" style="filter:grayscale(0.72) contrast(1.08) brightness(0.44);" />
+    <div style="position:absolute;inset:0;background:rgba(7,8,7,0.64);"></div>
+  </div>
+  <div style="position:relative;z-index:2;padding:10vh 28px;width:100%;">
+    <div class="section-inner">
+      <p class="section-kicker reveal">Max Plan</p>
+      <h2 class="reveal" style="color:var(--ink);margin-bottom:20px;">Subagents: Many Claudes, One Goal</h2>
+      <p class="body-lg reveal" style="margin-bottom:36px;max-width:640px;">On the Max plan, Claude Code can spin up multiple agents working in parallel. Each one tackles a different part of the problem simultaneously.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:900px;" class="three-col">
+        <div class="card reveal" style="text-align:center;">
+          <p style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;color:var(--acid);margin-bottom:12px;">Agent 1</p>
+          <p style="font-weight:700;color:var(--ink);margin-bottom:6px;">Research</p>
+          <p class="body-md">Scrapes the web, reads docs, pulls data.</p>
         </div>
+        <div class="card reveal" style="text-align:center;">
+          <p style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;color:var(--acid);margin-bottom:12px;">Agent 2</p>
+          <p style="font-weight:700;color:var(--ink);margin-bottom:6px;">Build</p>
+          <p class="body-md">Writes code, edits files, runs commands.</p>
+        </div>
+        <div class="card reveal" style="text-align:center;">
+          <p style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;color:var(--acid);margin-bottom:12px;">Agent 3</p>
+          <p style="font-weight:700;color:var(--ink);margin-bottom:6px;">Review</p>
+          <p class="body-md">Tests the output and checks for errors.</p>
+        </div>
+      </div>
+      <p class="body-md reveal" style="margin-top:28px;color:var(--muted);">Three agents working in parallel finish in one session what would otherwise take several.</p>
     </div>
+  </div>
 </section>
 
-<!-- 24. Marketer Case Study: Photo right -->
-<section id="sec-24" data-nav="24" style="min-height: 100vh; display: flex; align-items: center; padding: 0;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh;">
-        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
-            <div style="max-width: 520px;">
-                <p class="label reveal-up" style="color: var(--accent-2); margin-bottom: 14px;">Case Study</p>
-                <h2 class="display-lg reveal-up" style="margin-bottom: 20px;">The Marketer</h2>
-                <p class="body-lg reveal-up" style="margin-bottom: 20px;">Built an automated media planner that handles everything from brand research and competitor analysis to a full-fledged media plan, no spreadsheets required.</p>
-                <div class="panel reveal-up" style="background: var(--accent-2-dim); border: 1px solid rgba(15,118,110,0.15);">
-                    <p class="body-md" style="color: var(--text); font-weight: 500;">Agentic workflows aren't just for engineers.</p>
-                </div>
-            </div>
+
+<!-- ── 20. WHAT YOU CAN BUILD ────────────────────────────────── -->
+<section id="sec-build" data-nav="build" style="min-height:100vh;display:flex;align-items:center;position:relative;">
+  <div style="position:absolute;inset:0;z-index:0;">
+    <img src="https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="build" style="filter:grayscale(0.72) contrast(1.08) brightness(0.44);" />
+    <div style="position:absolute;inset:0;background:rgba(7,8,7,0.62);"></div>
+  </div>
+  <div style="position:relative;z-index:2;padding:10vh 28px;width:100%;">
+    <div class="section-inner">
+      <p class="section-kicker reveal">Capabilities</p>
+      <h2 class="reveal" style="color:var(--ink);margin-bottom:40px;">Build Stuff with Claude Code</h2>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;" class="five-col">
+        <div class="card reveal" style="text-align:center;padding:20px 14px;">
+          <p style="font-size:1.8rem;margin-bottom:10px;">🚀</p>
+          <p style="font-weight:700;color:var(--ink);">Applications</p>
         </div>
-        <div style="position: relative; min-height: 100vh;">
-            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="marketer">
+        <div class="card reveal" style="text-align:center;padding:20px 14px;">
+          <p style="font-size:1.8rem;margin-bottom:10px;">⚙️</p>
+          <p style="font-weight:700;color:var(--ink);">Workflows</p>
         </div>
+        <div class="card reveal" style="text-align:center;padding:20px 14px;">
+          <p style="font-size:1.8rem;margin-bottom:10px;">🌐</p>
+          <p style="font-weight:700;color:var(--ink);">Websites</p>
+        </div>
+        <div class="card reveal" style="text-align:center;padding:20px 14px;">
+          <p style="font-size:1.8rem;margin-bottom:10px;">📄</p>
+          <p style="font-weight:700;color:var(--ink);">Documents</p>
+        </div>
+        <div class="card reveal" style="text-align:center;padding:20px 14px;">
+          <p style="font-size:1.8rem;margin-bottom:10px;">🤖</p>
+          <p style="font-weight:700;color:var(--ink);">Scripts</p>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- 13. Keeping It Safe: Full photo + quote -->
-<section id="sec-13" data-nav="13" style="min-height: 80vh; display: flex; align-items: center; padding: 0; position: relative;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="security">
-        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5);"></div>
-    </div>
-    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%; text-align: center;">
-        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Security</p>
-        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 24px;">Keeping It Safe</h2>
-        <div class="panel reveal-up" style="display: inline-block; max-width: 700px; text-align: left;">
-            <p class="body-lg" style="margin-bottom: 16px;">Claude Code is not magic access to your whole computer. It usually works within your permissions and workspace rules, and sandboxing can restrict what it can change outside the current directory.</p>
-            <p class="body-md" style="color: var(--text); font-weight: 500;">Don't worry that it's going to delete your operating system. It works on the folder you put it in.</p>
+
+<!-- ── 21. SURPRISING USE CASES ──────────────────────────────── -->
+<section id="sec-usecases" class="horizontal-section" data-nav="usecases" style="position:relative;">
+  <div style="position:absolute;inset:0;z-index:0;">
+    <img src="https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="surprises" style="filter:grayscale(0.72) contrast(1.08) brightness(0.44);" />
+    <div style="position:absolute;inset:0;background:rgba(7,8,7,0.58);"></div>
+  </div>
+  <div style="position:relative;z-index:2;padding:10vh 0;min-height:100vh;display:flex;flex-direction:column;justify-content:center;">
+    <p class="section-kicker reveal" style="margin-left:28px;">Surprising Use Cases</p>
+    <h2 class="reveal" style="color:var(--ink);margin-bottom:42px;margin-left:28px;">Yes, You Can Use It for This Too</h2>
+    <div class="horizontal-wrapper" style="position:relative;height:55vh;">
+      <div class="horizontal-track" id="horizontalTrack" style="display:flex;gap:20px;padding:0 28px;width:max-content;">
+        <div class="card reveal" style="width:320px;flex-shrink:0;">
+          <div style="height:170px;border-radius:4px;overflow:hidden;margin-bottom:16px;">
+            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="wedding" style="filter:grayscale(0.4) contrast(1.08) brightness(0.8);" />
+          </div>
+          <h3 style="color:var(--acid);margin-bottom:6px;">Wedding planning</h3>
+          <p class="body-md">RSVPs, seating charts, vendor budgets.</p>
         </div>
+        <div class="card reveal" style="width:320px;flex-shrink:0;">
+          <div style="height:170px;border-radius:4px;overflow:hidden;margin-bottom:16px;">
+            <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="tax" style="filter:grayscale(0.4) contrast(1.08) brightness(0.8);" />
+          </div>
+          <h3 style="color:var(--cyan);margin-bottom:6px;">Tax organizer</h3>
+          <p class="body-md">Searches Gmail, extracts figures, builds overviews.</p>
+        </div>
+        <div class="card reveal" style="width:320px;flex-shrink:0;">
+          <div style="height:170px;border-radius:4px;overflow:hidden;margin-bottom:16px;">
+            <img src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="running" style="filter:grayscale(0.4) contrast(1.08) brightness(0.8);" />
+          </div>
+          <h3 style="margin-bottom:6px;">Marathon training</h3>
+          <p class="body-md">Plans from fitness tracker data and race nutrition.</p>
+        </div>
+        <div class="card reveal" style="width:320px;flex-shrink:0;">
+          <div style="height:170px;border-radius:4px;overflow:hidden;margin-bottom:16px;">
+            <img src="https://images.unsplash.com/photo-1500051638674-ff996a0ec29e?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="photos" style="filter:grayscale(0.4) contrast(1.08) brightness(0.8);" />
+          </div>
+          <h3 style="color:var(--acid);margin-bottom:6px;">Photo books</h3>
+          <p class="body-md">Sorts by date and location, creates layouts.</p>
+        </div>
+        <div class="card reveal" style="width:320px;flex-shrink:0;">
+          <div style="height:170px;border-radius:4px;overflow:hidden;margin-bottom:16px;">
+            <img src="https://images.unsplash.com/photo-1530533718754-001d2668365a?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="recovery" style="filter:grayscale(0.4) contrast(1.08) brightness(0.8);" />
+          </div>
+          <h3 style="color:var(--cyan);margin-bottom:6px;">File recovery</h3>
+          <p class="body-md">The viral 512 GB wedding video recovery story.</p>
+        </div>
+        <div class="card reveal" style="width:320px;flex-shrink:0;">
+          <div style="height:170px;border-radius:4px;overflow:hidden;margin-bottom:16px;">
+            <img src="https://images.unsplash.com/photo-1568952433726-3896e3881c65?auto=format&fit=crop&w=600&q=80" class="img-cover" alt="conversion" style="filter:grayscale(0.4) contrast(1.08) brightness(0.8);" />
+          </div>
+          <h3 style="color:var(--acid);margin-bottom:6px;">File conversion</h3>
+          <p class="body-md">Convert any file to any format, directly in Claude Code.</p>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- 14. Checkpoints: Split with image -->
-<section id="sec-14" data-nav="14" style="min-height: 90vh; display: flex; align-items: center; padding: 0;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 90vh;">
-        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
-            <div style="max-width: 480px; text-align: center;">
-                <p class="label reveal-up" style="color: var(--accent-2); margin-bottom: 14px;">Safety Net</p>
-                <h2 class="display-lg reveal-up" style="margin-bottom: 20px;">Checkpoints:<br>Your Undo Button</h2>
-                <p class="body-lg reveal-up" style="margin-bottom: 24px;">Before big changes, Claude saves a <span class="hl">checkpoint</span>. If something goes wrong, press <code style="font-family: var(--font-mono);">Esc</code> twice or type <code style="font-family: var(--font-mono);">/rewind</code> to roll back instantly.</p>
-                <div class="panel reveal-up" style="background: var(--accent-2-dim); border: 1px solid rgba(15,118,110,0.2);">
-                    <p class="body-md" style="color: var(--text);">Restore code, conversation, or both. Think of it like a save point in a video game. No Git expertise required.</p>
-                </div>
-            </div>
-        </div>
-        <div style="position: relative; min-height: 90vh;">
-            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="checkpoint">
-        </div>
+
+<!-- ── 22. CASE STUDY: DEVELOPER ─────────────────────────────── -->
+<section id="sec-dev" data-nav="dev" style="min-height:100vh;display:flex;align-items:center;position:relative;">
+  <div style="position:absolute;inset:0;z-index:0;">
+    <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="developer" style="filter:grayscale(0.72) contrast(1.08) brightness(0.44);" />
+    <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,8,7,0.82) 0%,rgba(7,8,7,0.36) 60%,rgba(7,8,7,0.12) 100%);"></div>
+  </div>
+  <div style="position:relative;z-index:2;padding:0 28px;width:100%;">
+    <div style="max-width:580px;">
+      <p class="section-kicker reveal">Case Study</p>
+      <h2 class="reveal" style="color:var(--ink);">The Developer</h2>
+      <div class="card reveal">
+        <p class="body-lg" style="color:var(--ink);margin-bottom:18px;">We built two full apps in single sessions to see how far one prompt could go. Both are live.</p>
+        <p class="body-md" style="margin-bottom:10px;"><a href="https://taskflow-pi-dun.vercel.app/" target="_blank" style="color:var(--acid);font-weight:700;">Built a task management app →</a></p>
+        <p class="body-md"><a href="https://nutriplan-snowy.vercel.app/" target="_blank" style="color:var(--acid);font-weight:700;">Built a nutrition planner app →</a></p>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- 27. You Are Still the Boss: Photo left -->
-<section id="sec-27" data-nav="27" style="min-height: 90vh; display: flex; align-items: center; padding: 0;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 90vh;">
-        <div style="position: relative; min-height: 90vh;">
-            <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="boss">
+
+<!-- ── 23. CASE STUDY: MARKETER ──────────────────────────────── -->
+<section id="sec-marketer" data-nav="marketer" style="min-height:100vh;display:flex;align-items:center;">
+  <div class="split">
+    <div class="split-left">
+      <div class="split-copy">
+        <p class="section-kicker reveal">Case Study</p>
+        <h2 class="reveal">The Marketer</h2>
+        <p class="body-lg reveal" style="margin-bottom:22px;">Built an automated media planner: brand research, competitor analysis, full media plan. No spreadsheets. No manual work between steps.</p>
+        <div class="card-cyan reveal">
+          <p class="body-md" style="font-weight:600;">You don't need to write code to run an agentic workflow.</p>
         </div>
-        <div style="display: flex; align-items: center; justify-content: center; padding: 8vh 6vw; background: var(--bg);">
-            <div style="max-width: 480px;">
-                <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px;">Control</p>
-                <h2 class="display-lg reveal-up" style="margin-bottom: 20px;">You Are Still<br>the Boss</h2>
-                <p class="body-lg reveal-up" style="margin-bottom: 20px;">Claude can move fast, but you still stay in control. The best results usually happen when you review the work, give feedback, and guide it as needed.</p>
-                <div class="panel reveal-up" style="background: var(--accent-dim); border: 1px solid rgba(217,78,31,0.15);">
-                    <p class="body-md" style="color: var(--text); font-weight: 500;">It's an assistant, not an autopilot.</p>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+    <div class="split-right">
+      <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="marketer" style="filter:grayscale(0.55) contrast(1.1) brightness(0.62);" />
+    </div>
+  </div>
 </section>
 
-<!-- 15. The Honest Truth: 4 images + 4 points -->
-<section id="sec-15" data-nav="15" style="min-height: 100vh; display: flex; align-items: center; padding: 10vh 6vw;">
-    <div class="content" style="max-width: 1200px; margin: 0 auto;">
-        <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px; text-align: center;">Reality Check</p>
-        <h2 class="display-lg reveal-up" style="margin-bottom: 36px; text-align: center;">The Honest Truth</h2>
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 36px;">
-            <div style="border-radius: 4px; overflow: hidden; height: 28vh;"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="warning"></div>
-            <div style="border-radius: 4px; overflow: hidden; height: 28vh; margin-top: 20px;"><img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="clean"></div>
-            <div style="border-radius: 4px; overflow: hidden; height: 28vh;"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="restart"></div>
-            <div style="border-radius: 4px; overflow: hidden; height: 28vh; margin-top: 20px;"><img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="verify"></div>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
-            <div class="panel reveal-up">
-                <p class="body-md" style="color: var(--text);"><span class="hl">CLAUDE.md hints fade over time.</span> Long sessions = fading memory. Keep your brain file to ~1 page.</p>
-            </div>
-            <div class="panel reveal-up">
-                <p class="body-md" style="color: var(--text);"><span class="hl">Use <code style="font-family: var(--font-mono);">/clear</code> between unrelated tasks.</span> It's the single highest-ROI habit.</p>
-            </div>
-            <div class="panel reveal-up">
-                <p class="body-md" style="color: var(--text);"><span class="hl">After two failed corrections, start fresh.</span> A clean prompt beats arguing in circles.</p>
-            </div>
-            <div class="panel reveal-up" style="background: var(--accent-dim);">
-                <p class="body-md" style="color: var(--text);"><span class="hl">Always verify the work.</span> Claude is enthusiastic, fast, and occasionally wrong.</p>
-            </div>
-            <div class="panel reveal-up" style="grid-column: 1 / -1;">
-                <p class="body-md" style="color: var(--text);"><span class="hl">Tokens burn fast.</span> Intensive work like coding can drain your token limit quickly, especially on the Pro plan. Always plan your task before you start, not halfway through.</p>
-            </div>
-        </div>
+
+<!-- ── 24. KEEPING IT SAFE ───────────────────────────────────── -->
+<section id="sec-safe" data-nav="safe" style="min-height:80vh;display:flex;align-items:center;position:relative;">
+  <div style="position:absolute;inset:0;z-index:0;">
+    <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="security" style="filter:grayscale(0.72) contrast(1.08) brightness(0.44);" />
+    <div style="position:absolute;inset:0;background:rgba(7,8,7,0.64);"></div>
+  </div>
+  <div style="position:relative;z-index:2;padding:10vh 28px;width:100%;text-align:center;">
+    <div class="section-inner" style="max-width:780px;">
+      <p class="section-kicker reveal">Security</p>
+      <h2 class="reveal" style="color:var(--ink);margin-bottom:28px;">Keeping It Safe</h2>
+      <div class="card reveal" style="text-align:left;">
+        <p class="body-lg" style="color:var(--ink);margin-bottom:16px;">Claude Code is not magic access to your whole computer. It works within your permissions and workspace rules, and sandboxing can restrict what it can change outside the current directory.</p>
+        <p class="body-md" style="font-weight:600;color:var(--acid);">Don't worry that it's going to delete your operating system. It works on the folder you put it in.</p>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- NEW: When Things Go Wrong -->
-<section id="sec-troubleshoot" data-nav="troubleshoot" style="min-height: 100vh; display: flex; align-items: center; padding: 10vh 6vw;">
-    <div class="content" style="max-width: 1100px; margin: 0 auto;">
-        <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px; text-align: center;">Troubleshooting</p>
-        <h2 class="display-lg reveal-up" style="margin-bottom: 36px; text-align: center;">When Things Go Wrong</h2>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
-            <div class="panel reveal-up" style="display: flex; flex-direction: column; gap: 10px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="ph ph-arrows-clockwise" style="font-size: 1.2rem; color: var(--accent);"></i>
-                    <p class="body-md" style="color: var(--text); font-weight: 600;">Claude is going in circles</p>
-                </div>
-                <p class="body-md">Stop it. Type <span style="font-family: var(--font-mono); color: var(--accent);">/clear</span> and restate the goal more simply. Arguing with a looping Claude wastes tokens and makes it worse.</p>
-            </div>
-            <div class="panel reveal-up" style="display: flex; flex-direction: column; gap: 10px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="ph ph-file-x" style="font-size: 1.2rem; color: var(--accent);"></i>
-                    <p class="body-md" style="color: var(--text); font-weight: 600;">It edited the wrong file</p>
-                </div>
-                <p class="body-md">Check your checkpoints and revert. Then be more specific: tell Claude exactly which file to touch and which to leave alone. Name the files explicitly.</p>
-            </div>
-            <div class="panel reveal-up" style="display: flex; flex-direction: column; gap: 10px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="ph ph-warning" style="font-size: 1.2rem; color: var(--accent);"></i>
-                    <p class="body-md" style="color: var(--text); font-weight: 600;">It confidently made something up</p>
-                </div>
-                <p class="body-md">Claude can hallucinate file names, function names, or steps that don't exist. Always verify output. If something looks wrong, it probably is - ask Claude to double-check its own work.</p>
-            </div>
-            <div class="panel reveal-up" style="display: flex; flex-direction: column; gap: 10px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="ph ph-question" style="font-size: 1.2rem; color: var(--accent);"></i>
-                    <p class="body-md" style="color: var(--text); font-weight: 600;">Nothing is working and you don't know why</p>
-                </div>
-                <p class="body-md">Start a fresh session. Paste in a one-paragraph summary of what you were doing and what broke. Fresh context fixes more problems than you'd expect.</p>
-            </div>
-            <div class="panel reveal-up" style="grid-column: 1 / -1; background: var(--accent-dim);">
-                <p class="body-md" style="color: var(--text);"><span class="hl">The golden rule:</span> if Claude has failed the same task twice, don't try a third time the same way. Change your approach, simplify the ask, or break it into smaller steps.</p>
-            </div>
+
+<!-- ── 25. CHECKPOINTS ───────────────────────────────────────── -->
+<section id="sec-checkpoints" data-nav="checkpoints" style="min-height:90vh;display:flex;align-items:center;">
+  <div class="split">
+    <div class="split-left">
+      <div class="split-copy" style="text-align:center;">
+        <p class="section-kicker reveal">Safety Net</p>
+        <h2 class="reveal">Checkpoints:<br>Your Undo Button</h2>
+        <p class="body-lg reveal" style="margin-bottom:24px;">Before big changes, Claude saves a <span class="hl">checkpoint</span>. If something goes wrong, press <code>Esc</code> twice or type <code>/rewind</code> to roll back instantly.</p>
+        <div class="card-cyan reveal">
+          <p class="body-md">Restore code, conversation, or both. Think of it like a save point in a video game. No Git expertise required.</p>
         </div>
+      </div>
     </div>
+    <div class="split-right">
+      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="checkpoint" style="filter:grayscale(0.55) contrast(1.1) brightness(0.62);" />
+    </div>
+  </div>
 </section>
 
-<!-- 15b. Alternatives -->
-<section id="sec-15b" data-nav="15b" style="min-height: 100vh; display: flex; align-items: center; padding: 10vh 6vw;">
-    <div class="content" style="max-width: 1100px; margin: 0 auto; width: 100%;">
-        <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px; text-align: center;">Other Options</p>
-        <h2 class="display-lg reveal-up" style="margin-bottom: 12px; text-align: center;">There Are Alternatives</h2>
-        <p class="body-lg reveal-up" style="text-align: center; margin-bottom: 40px; color: var(--text-muted);">If tokens or cost are a concern, these are worth knowing about.</p>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-            <div class="panel reveal-up" style="text-align: center;">
-                <div style="height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
-                    <img src="https://github.com/MoonshotAI/Kimi-K2.5/raw/master/figures/kimi-logo.png" alt="Kimi Code" style="height: 48px; width: auto; object-fit: contain;">
-                </div>
-                <h4 class="display-md" style="font-size: 1.05rem; margin-bottom: 8px;">Kimi Code</h4>
-                <p class="body-md">Moonshot AI's coding agent. Long-context specialist, handles massive codebases without breaking a sweat.</p>
-            </div>
-            <div class="panel reveal-up" style="text-align: center;">
-                <div style="height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg" alt="OpenAI Codex" style="height: 32px; width: auto; object-fit: contain;">
-                </div>
-                <h4 class="display-md" style="font-size: 1.05rem; margin-bottom: 8px;">Codex</h4>
-                <p class="body-md">OpenAI's cloud-based coding agent. Runs tasks asynchronously in the background. Fire and forget.</p>
-            </div>
-            <div class="panel reveal-up" style="text-align: center;">
-                <div style="height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/Qwen_logo.svg" alt="Qwen Code" style="height: 48px; width: auto; object-fit: contain;">
-                </div>
-                <h4 class="display-md" style="font-size: 1.05rem; margin-bottom: 8px;">Qwen Code</h4>
-                <p class="body-md">Alibaba's open-source coding model. Strong multilingual support and fully self-hostable.</p>
-            </div>
-        </div>
+
+<!-- ── 26. YOU ARE STILL THE BOSS ────────────────────────────── -->
+<section id="sec-boss" data-nav="boss" style="min-height:90vh;display:flex;align-items:center;">
+  <div class="split">
+    <div class="split-right" style="order:-1;">
+      <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1200&q=80" class="img-cover" alt="boss" style="filter:grayscale(0.55) contrast(1.1) brightness(0.6);" />
     </div>
+    <div class="split-left">
+      <div class="split-copy">
+        <p class="section-kicker reveal">Control</p>
+        <h2 class="reveal">You Are Still the Boss</h2>
+        <p class="body-lg reveal" style="margin-bottom:22px;">Claude works at speed, but every change it makes is something you approved. Review before accepting. Redirect when it drifts.</p>
+        <div class="card-acid reveal">
+          <p class="body-md" style="font-weight:700;">It's an assistant, not an autopilot.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- 18. What It Costs: 3 cards over photo -->
-<section id="sec-18" data-nav="18" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="money">
-        <div style="position: absolute; inset: 0; background: rgba(245,243,239,0.88);"></div>
+
+<!-- ── 27. THE HONEST TRUTH ──────────────────────────────────── -->
+<section id="sec-truth" data-nav="truth" class="section-band" style="background:var(--carbon);border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <div class="section-inner">
+    <p class="section-kicker reveal" style="text-align:center;">Reality Check</p>
+    <h2 class="reveal" style="text-align:center;margin-bottom:40px;">The Honest Truth</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" class="two-col">
+      <div class="card reveal">
+        <p class="body-md"><span class="hl">CLAUDE.md hints fade over time.</span> Long sessions = fading memory. Keep your brain file to ~1 page.</p>
+      </div>
+      <div class="card reveal">
+        <p class="body-md"><span class="hl">Use <code>/clear</code> between unrelated tasks.</span> It's the single highest-ROI habit you can build.</p>
+      </div>
+      <div class="card reveal">
+        <p class="body-md"><span class="hl">After two failed corrections, start fresh.</span> A clean prompt beats arguing in circles.</p>
+      </div>
+      <div class="card-acid reveal">
+        <p class="body-md"><span class="hl">Always verify the work.</span> Claude is enthusiastic, fast, and occasionally wrong.</p>
+      </div>
+      <div class="card reveal" style="grid-column:1 / -1;">
+        <p class="body-md"><span class="hl">Tokens burn fast.</span> Intensive work like coding can drain your token limit quickly, especially on Pro. Always plan your task before you start, not halfway through.</p>
+      </div>
     </div>
-    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
-        <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px; text-align: center;">Pricing</p>
-        <h2 class="display-lg reveal-up" style="margin-bottom: 36px; text-align: center;">What It Costs</h2>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1000px; margin: 0 auto;">
-            <div class="panel reveal-up" style="text-align: center;">
-                <p class="label" style="color: var(--muted); margin-bottom: 8px;">Pro</p>
-                <h3 class="display-md" style="font-size: 2.2rem; margin-bottom: 8px; color: var(--text);">~$20/mo</h3>
-                <p class="body-md">Good for experimenting. Includes Claude Code with usage limits.</p>
-            </div>
-            <div class="panel reveal-up" style="text-align: center; background: var(--accent-dim); border: 1px solid rgba(217,78,31,0.2);">
-                <p class="label" style="color: var(--accent); margin-bottom: 8px;">Max</p>
-                <h3 class="display-md" style="font-size: 2.2rem; margin-bottom: 8px; color: var(--accent);">$100–$200/mo</h3>
-                <p class="body-md" style="color: var(--text);">For building seriously, running subagents, and daily heavy use.</p>
-            </div>
-            <div class="panel reveal-up" style="text-align: center; background: var(--accent-2-dim); border: 1px solid rgba(15,118,110,0.2);">
-                <p class="label" style="color: var(--accent-2); margin-bottom: 8px;">Psychology</p>
-                <h3 class="display-md" style="font-size: 1.4rem; margin-bottom: 8px; color: var(--accent-2);">Flat-Rate Freedom</h3>
-                <p class="body-md">When you're not watching a meter run, you're more willing to delegate big tasks.</p>
-            </div>
-        </div>
-    </div>
+  </div>
 </section>
 
-<!-- 26. Find Your First Win: Full photo -->
-<section id="sec-26" data-nav="26" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="win">
-        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.45);"></div>
+
+<!-- ── 28. WHEN THINGS GO WRONG ──────────────────────────────── -->
+<section id="sec-trouble" data-nav="trouble" class="section-band">
+  <div class="section-inner">
+    <p class="section-kicker reveal" style="text-align:center;">Troubleshooting</p>
+    <h2 class="reveal" style="text-align:center;margin-bottom:36px;">When Things Go Wrong</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" class="two-col">
+      <div class="card reveal">
+        <h3 style="margin-bottom:8px;">Claude is going in circles</h3>
+        <p class="body-md">Stop it. Type <code>/clear</code> and restate the goal more simply. Arguing with a looping Claude wastes tokens and makes it worse.</p>
+      </div>
+      <div class="card reveal">
+        <h3 style="margin-bottom:8px;">It edited the wrong file</h3>
+        <p class="body-md">Check your checkpoints and revert. Then be more specific: tell Claude exactly which file to touch and which to leave alone.</p>
+      </div>
+      <div class="card reveal">
+        <h3 style="margin-bottom:8px;">It confidently made something up</h3>
+        <p class="body-md">Claude can hallucinate file names or steps that don't exist. Always verify the output. If something looks wrong, it probably is.</p>
+      </div>
+      <div class="card reveal">
+        <h3 style="margin-bottom:8px;">Nothing is working and you don't know why</h3>
+        <p class="body-md">Start a fresh session. Paste in a one-paragraph summary of what you were doing and what broke. Fresh context fixes more than you'd expect.</p>
+      </div>
+      <div class="card-acid reveal" style="grid-column:1 / -1;">
+        <p class="body-md"><span class="hl">The golden rule:</span> if Claude has failed the same task twice, don't try a third time the same way. Change your approach, simplify the ask, or break it into smaller steps.</p>
+      </div>
     </div>
-    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%;">
-        <div style="max-width: 750px;">
-            <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Action Step</p>
-            <h2 class="display-lg reveal-up text-white" style="margin-bottom: 20px;">Find Your First Win</h2>
-            <div class="panel reveal-up" style="margin-bottom: 16px;">
-                <p class="body-lg" style="margin-bottom: 12px;">Instead of asking <span style="font-weight: 500;">"what should I build?"</span>, ask <span style="font-weight: 500;">"what do I hate doing manually?"</span></p>
-                <ul class="body-md" style="list-style: none; display: flex; flex-direction: column; gap: 5px;">
-                    <li>Triaging unread emails</li>
-                    <li>Copy-pasting data between spreadsheets</li>
-                    <li>Renaming hundreds of files</li>
-                </ul>
-            </div>
-            <p class="body-md reveal-up text-white-muted">Pick one. Automate it this weekend. Start small, stack wins.</p>
-        </div>
-    </div>
+  </div>
 </section>
 
-<!-- 25. Live Demo: 4 photos + steps -->
-<section id="sec-25" data-nav="25" style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 10vh 6vw;">
-    <div class="content" style="max-width: 1200px; margin: 0 auto;">
-        <p class="label reveal-up" style="color: var(--accent); margin-bottom: 14px; text-align: center;">Hands On</p>
-        <h2 class="display-lg reveal-up" style="margin-bottom: 28px; text-align: center;">Let's Try It (Live Demo)</h2>
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 32px;">
-            <div style="border-radius: 4px; overflow: hidden; height: 22vh;"><img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="open"></div>
-            <div style="border-radius: 4px; overflow: hidden; height: 22vh; margin-top: 16px;"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="scan"></div>
-            <div style="border-radius: 4px; overflow: hidden; height: 22vh;"><img src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="explain"></div>
-            <div style="border-radius: 4px; overflow: hidden; height: 22vh; margin-top: 16px;"><img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="task"></div>
+
+<!-- ── 29. ALTERNATIVES ──────────────────────────────────────── -->
+<section id="sec-alts" data-nav="alts" class="section-band" style="background:var(--graphite);border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <div class="section-inner">
+    <p class="section-kicker reveal" style="text-align:center;">Other Options</p>
+    <h2 class="reveal" style="text-align:center;margin-bottom:12px;">There Are Alternatives</h2>
+    <p class="body-lg reveal" style="text-align:center;margin-bottom:40px;">If tokens or cost are a concern, these are worth knowing about.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:900px;margin:0 auto;" class="three-col">
+      <div class="card reveal" style="text-align:center;">
+        <div style="height:56px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
+          <img src="https://github.com/MoonshotAI/Kimi-K2.5/raw/master/figures/kimi-logo.png" alt="Kimi Code" style="height:40px;width:auto;object-fit:contain;filter:brightness(0) invert(1);opacity:0.8;" />
         </div>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; max-width: 800px; margin: 0 auto;">
-            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">1</div>
-                <p class="body-md" style="color: var(--text);">Open a folder.</p>
-            </div>
-            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">2</div>
-                <p class="body-md" style="color: var(--text);">Ask Claude what is inside.</p>
-            </div>
-            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">3</div>
-                <p class="body-md" style="color: var(--text);">Ask it to explain the project.</p>
-            </div>
-            <div class="panel reveal-up" style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">4</div>
-                <p class="body-md" style="color: var(--text);">Give it one small task and review.</p>
-            </div>
+        <h3 style="margin-bottom:8px;">Kimi Code</h3>
+        <p class="body-md">Moonshot AI's coding agent. Long-context specialist that handles large codebases well.</p>
+      </div>
+      <div class="card reveal" style="text-align:center;">
+        <div style="height:56px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg" alt="OpenAI Codex" style="height:28px;width:auto;object-fit:contain;filter:brightness(0) invert(1);opacity:0.8;" />
         </div>
-        <p class="body-md reveal-up" style="text-align: center; margin-top: 24px; color: var(--accent);">Switch to terminal screen</p>
+        <h3 style="margin-bottom:8px;">Codex</h3>
+        <p class="body-md">OpenAI's cloud-based coding agent. Runs tasks asynchronously in the background. Fire and forget.</p>
+      </div>
+      <div class="card reveal" style="text-align:center;">
+        <div style="height:56px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/Qwen_logo.svg" alt="Qwen Code" style="height:40px;width:auto;object-fit:contain;filter:brightness(0) invert(1);opacity:0.8;" />
+        </div>
+        <h3 style="margin-bottom:8px;">Qwen Code</h3>
+        <p class="body-md">Alibaba's open-source coding model. Strong multilingual support and fully self-hostable.</p>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- 28. Mental Model: Full photo centered -->
-<section id="sec-28" data-nav="28" style="min-height: 100vh; display: flex; align-items: center; padding: 0; position: relative;">
-    <div style="position: absolute; inset: 0; z-index: 0;">
-        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="mental model">
-        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5);"></div>
+
+<!-- ── 30. WHAT IT COSTS ─────────────────────────────────────── -->
+<section id="sec-pricing" data-nav="pricing" class="section-band">
+  <div class="section-inner">
+    <p class="section-kicker reveal" style="text-align:center;">Pricing</p>
+    <h2 class="reveal" style="text-align:center;margin-bottom:40px;">What It Costs</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:860px;margin:0 auto;" class="three-col">
+      <div class="card reveal" style="text-align:center;">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:10px;">Pro</p>
+        <p style="font-family:'Instrument Serif',Georgia,serif;font-size:2.4rem;margin-bottom:10px;color:var(--ink);">~$20<span style="font-size:1.2rem;color:var(--muted);">/mo</span></p>
+        <p class="body-md">Good for experimenting. Includes Claude Code with usage limits.</p>
+      </div>
+      <div class="card-acid reveal" style="text-align:center;">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:var(--acid);margin-bottom:10px;">Max</p>
+        <p style="font-family:'Instrument Serif',Georgia,serif;font-size:2.4rem;margin-bottom:10px;color:var(--acid);">$100–200<span style="font-size:1.2rem;color:rgba(183,255,42,0.6);">/mo</span></p>
+        <p class="body-md">For building seriously, running subagents, and daily heavy use.</p>
+      </div>
+      <div class="card-cyan reveal" style="text-align:center;">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:var(--cyan);margin-bottom:10px;">Psychology</p>
+        <p style="font-family:'Instrument Serif',Georgia,serif;font-size:1.6rem;margin-bottom:10px;color:var(--cyan);">Flat-Rate Freedom</p>
+        <p class="body-md">When you're not watching a meter run, you're more willing to delegate big tasks.</p>
+      </div>
     </div>
-    <div class="content" style="position: relative; z-index: 2; padding: 10vh 6vw; width: 100%; text-align: center;">
-        <p class="label reveal-up text-white-muted" style="margin-bottom: 14px;">Final Takeaway</p>
-        <h2 class="display-lg reveal-up text-white" style="margin-bottom: 32px;">The Mental Model</h2>
-        <div style="display: flex; flex-direction: column; gap: 12px; max-width: 800px; margin: 0 auto;">
-            <div class="panel reveal-up" style="display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap;">
-                <div style="display: flex; align-items: center; gap: 14px;">
-                    <div style="width: 44px; height: 44px; border-radius: 10px; background: var(--accent-2-dim); display: flex; align-items: center; justify-content: center; color: var(--accent-2); font-size: 1.4rem;"><i class="ph ph-brain"></i></div>
-                    <h4 class="display-md" style="font-size: 1.2rem; color: var(--text);">Claude.ai</h4>
-                </div>
-                <p class="body-md" style="color: var(--muted);">Helps you think.</p>
-            </div>
-            <div class="panel reveal-up" style="display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap;">
-                <div style="display: flex; align-items: center; gap: 14px;">
-                    <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; color: var(--text); font-size: 1.4rem;"><i class="ph ph-files"></i></div>
-                    <h4 class="display-md" style="font-size: 1.2rem; color: var(--text);">Claude Cowork</h4>
-                </div>
-                <p class="body-md" style="color: var(--muted);">Helps you delegate desktop work.</p>
-            </div>
-            <div class="panel reveal-up" style="display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap;">
-                <div style="display: flex; align-items: center; gap: 14px;">
-                    <div style="width: 44px; height: 44px; border-radius: 10px; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.4rem;"><i class="ph ph-terminal"></i></div>
-                    <h4 class="display-md" style="font-size: 1.2rem; color: var(--text);">Claude Code</h4>
-                </div>
-                <p class="body-md" style="color: var(--muted);">Helps you delegate technical work from the terminal.</p>
-            </div>
-        </div>
-        <p class="body-md reveal-up text-white-muted" style="margin-top: 36px;">If you remember one thing from today, remember this.</p>
-    </div>
+  </div>
 </section>
 
-<!-- Footer -->
-<section style="min-height: 60vh; display: flex; align-items: center; justify-content: center; background: #0F0F10; border-top: 1px solid rgba(255,255,255,0.06); padding: 8vh 6vw;">
-    <div style="text-align: center; max-width: 700px;">
-        <div style="width: 52px; height: 52px; border-radius: 14px; background: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; font-size: 1.5rem; color: #fff;">
-            <i class="ph ph-terminal"></i>
-        </div>
-        <h2 style="font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -0.025em; color: #fff; margin-bottom: 16px; line-height: 1.1;">You're ready.<br><span style="color: rgba(255,255,255,0.45); font-weight: 400;">Now go build something.</span></h2>
-        <p style="font-family: var(--font-display); font-size: 1.05rem; line-height: 1.65; color: rgba(255,255,255,0.5); margin-bottom: 36px; max-width: 480px; margin-left: auto; margin-right: auto;">The best way to learn Claude Code is to open a folder, type <span style="font-family: var(--font-mono); color: rgba(255,255,255,0.75); font-size: 0.9rem;">claude</span>, and give it one small task. Start there.</p>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 48px;">
-            <a href="https://claude.ai" target="_blank" class="btn-accent"><i class="ph ph-arrow-square-out"></i> Open Claude.ai</a>
-            <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank" class="btn-outline"><i class="ph ph-book-open"></i> Read the Docs</a>
-        </div>
-        <div style="border-top: 1px solid rgba(255,255,255,0.07); padding-top: 28px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-            <i class="ph ph-lightning" style="color: var(--accent); font-size: 0.9rem;"></i>
-            <p style="font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25);">Built entirely with Claude Code</p>
-        </div>
+
+<!-- ── 31. FIND YOUR FIRST WIN ───────────────────────────────── -->
+<section id="sec-win" data-nav="win" style="min-height:100vh;display:flex;align-items:center;position:relative;">
+  <div style="position:absolute;inset:0;z-index:0;">
+    <img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="win" style="filter:grayscale(0.72) contrast(1.08) brightness(0.44);" />
+    <div style="position:absolute;inset:0;background:rgba(7,8,7,0.64);"></div>
+  </div>
+  <div style="position:relative;z-index:2;padding:10vh 28px;width:100%;">
+    <div style="max-width:700px;">
+      <p class="section-kicker reveal">Action Step</p>
+      <h2 class="reveal" style="color:var(--ink);">Find Your First Win</h2>
+      <div class="card reveal" style="margin-bottom:18px;">
+        <p class="body-lg" style="color:var(--ink);margin-bottom:14px;">Instead of asking <em>"what should I build?"</em>, ask <em>"what do I hate doing manually?"</em></p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;">
+          <li class="body-md">→ Triaging unread emails</li>
+          <li class="body-md">→ Copy-pasting data between spreadsheets</li>
+          <li class="body-md">→ Renaming hundreds of files</li>
+        </ul>
+      </div>
+      <p class="body-md reveal" style="color:var(--muted);">Pick one. Run it this week.</p>
     </div>
+  </div>
 </section>
+
+
+<!-- ── 32. LIVE DEMO ─────────────────────────────────────────── -->
+<section id="sec-demo" data-nav="demo" class="section-band" style="background:var(--carbon);border-top:1px solid var(--line);">
+  <div class="section-inner">
+    <p class="section-kicker reveal" style="text-align:center;">Hands On</p>
+    <h2 class="reveal" style="text-align:center;margin-bottom:32px;">Let's Try It (Live Demo)</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:32px;" class="four-col">
+      <div style="border-radius:6px;overflow:hidden;height:22vh;"><img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="open" style="filter:grayscale(0.6) contrast(1.1) brightness(0.7);" /></div>
+      <div style="border-radius:6px;overflow:hidden;height:22vh;margin-top:16px;"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="scan" style="filter:grayscale(0.6) contrast(1.1) brightness(0.7);" /></div>
+      <div style="border-radius:6px;overflow:hidden;height:22vh;"><img src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="explain" style="filter:grayscale(0.6) contrast(1.1) brightness(0.7);" /></div>
+      <div style="border-radius:6px;overflow:hidden;height:22vh;margin-top:16px;"><img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=400&q=80" class="img-cover" alt="task" style="filter:grayscale(0.6) contrast(1.1) brightness(0.7);" /></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:760px;margin:0 auto;" class="two-col">
+      <div class="card reveal" style="display:flex;align-items:center;gap:14px;">
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(183,255,42,0.12);border:1px solid rgba(183,255,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--acid);flex-shrink:0;">1</div>
+        <p class="body-md">Open a folder.</p>
+      </div>
+      <div class="card reveal" style="display:flex;align-items:center;gap:14px;">
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(183,255,42,0.12);border:1px solid rgba(183,255,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--acid);flex-shrink:0;">2</div>
+        <p class="body-md">Ask Claude what is inside.</p>
+      </div>
+      <div class="card reveal" style="display:flex;align-items:center;gap:14px;">
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(183,255,42,0.12);border:1px solid rgba(183,255,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--acid);flex-shrink:0;">3</div>
+        <p class="body-md">Ask it to explain the project.</p>
+      </div>
+      <div class="card reveal" style="display:flex;align-items:center;gap:14px;">
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(183,255,42,0.12);border:1px solid rgba(183,255,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--acid);flex-shrink:0;">4</div>
+        <p class="body-md">Give it one small task and review.</p>
+      </div>
+    </div>
+    <p class="body-md reveal" style="text-align:center;margin-top:28px;color:var(--acid);">→ Switch to terminal screen</p>
+  </div>
+</section>
+
+
+<!-- ── 33. THE MENTAL MODEL ──────────────────────────────────── -->
+<section id="sec-model" data-nav="model" style="min-height:100vh;display:flex;align-items:center;position:relative;">
+  <div style="position:absolute;inset:0;z-index:0;">
+    <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80" class="img-cover" alt="mental model" style="filter:grayscale(0.72) contrast(1.08) brightness(0.4);" />
+    <div style="position:absolute;inset:0;background:rgba(7,8,7,0.66);"></div>
+  </div>
+  <div style="position:relative;z-index:2;padding:10vh 28px;width:100%;text-align:center;">
+    <div class="section-inner" style="max-width:780px;">
+      <p class="section-kicker reveal">Final Takeaway</p>
+      <h2 class="reveal" style="color:var(--ink);margin-bottom:36px;">The Mental Model</h2>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="card reveal" style="display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:42px;height:42px;border-radius:8px;background:rgba(106,244,255,0.1);border:1px solid rgba(106,244,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">🧠</div>
+            <p style="font-weight:700;color:var(--ink);font-size:1.1rem;">Claude.ai</p>
+          </div>
+          <p class="body-md">Helps you think.</p>
+        </div>
+        <div class="card reveal" style="display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:42px;height:42px;border-radius:8px;background:rgba(244,241,234,0.08);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">📁</div>
+            <p style="font-weight:700;color:var(--ink);font-size:1.1rem;">Claude Cowork</p>
+          </div>
+          <p class="body-md">Helps you delegate desktop work.</p>
+        </div>
+        <div class="card-acid reveal" style="display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:42px;height:42px;border-radius:8px;background:rgba(183,255,42,0.12);border:1px solid rgba(183,255,42,0.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">⌨️</div>
+            <p style="font-weight:700;color:var(--acid);font-size:1.1rem;">Claude Code</p>
+          </div>
+          <p class="body-md">Helps you delegate technical work from the terminal.</p>
+        </div>
+      </div>
+      <p class="body-md reveal" style="margin-top:36px;color:var(--muted);">Three tools. Three jobs. Know which one to reach for.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── 34. CLOSING CTA ───────────────────────────────────────── -->
+<section style="min-height:60vh;display:flex;align-items:center;justify-content:center;background:var(--void);border-top:1px solid var(--line);padding:8vh 28px;">
+  <div style="text-align:center;max-width:680px;">
+    <a href="../index.html" style="display:block;margin:0 auto 32px;">
+      <img src="../assets/axecute-logo.svg" alt="Axecute" style="width:140px;height:auto;margin:0 auto;" />
+    </a>
+    <h2 style="font-family:'Instrument Serif',Georgia,serif;font-size:clamp(2rem,4.5vw,3.2rem);font-weight:400;color:var(--ink);margin-bottom:18px;line-height:1.05;">You're ready.<br><span style="color:var(--muted);">Now go build something.</span></h2>
+    <p style="font-size:1rem;line-height:1.7;color:var(--muted);margin-bottom:36px;max-width:460px;margin-left:auto;margin-right:auto;">The best way to learn Claude Code is to open a folder, type <code>claude</code>, and give it one small task. Start there.</p>
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:48px;">
+      <a href="https://claude.ai" target="_blank" class="button primary">Open Claude.ai</a>
+      <a href="../index.html#contact" class="button secondary">Book 1:1 training</a>
+    </div>
+    <div style="border-top:1px solid var(--line);padding-top:28px;">
+      <p style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--soft);">Built entirely with Claude Code · Axecute</p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <span>Axecute</span>
+  <a href="../index.html" style="color:var(--acid);">Back to axecute.ai</a>
+</footer>
 
 <script>
-    gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger);
 
-    // Progress bar
-    const progressFill = document.getElementById('progressFill');
-    window.addEventListener('scroll', () => {
-        const scrollTop = window.scrollY;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        progressFill.style.height = (scrollTop / docHeight) * 100 + '%';
-    });
+  // Progress bar
+  const progressFill = document.getElementById('progressFill');
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    progressFill.style.width = (scrollTop / docHeight) * 100 + '%';
+  });
 
-    // Nav dots
-    const sections = document.querySelectorAll('section[data-nav]');
-    const navDotsContainer = document.getElementById('navDots');
+  // Nav dots
+  const sections = document.querySelectorAll('section[data-nav]');
+  const navDotsContainer = document.getElementById('navDots');
+  sections.forEach((sec, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => sec.scrollIntoView({ behavior: 'smooth' });
+    navDotsContainer.appendChild(dot);
+  });
+  const navDots = document.querySelectorAll('.nav-dot');
+  window.addEventListener('scroll', () => {
+    let current = 0;
     sections.forEach((sec, i) => {
-        const dot = document.createElement('div');
-        dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
-        dot.onclick = () => sec.scrollIntoView({ behavior: 'smooth' });
-        navDotsContainer.appendChild(dot);
+      if (sec.getBoundingClientRect().top <= window.innerHeight / 2) current = i;
     });
+    navDots.forEach((d, i) => d.classList.toggle('active', i === current));
+  });
 
-    const navDots = document.querySelectorAll('.nav-dot');
-    window.addEventListener('scroll', () => {
-        let current = 0;
-        sections.forEach((sec, i) => {
-            const rect = sec.getBoundingClientRect();
-            if (rect.top <= window.innerHeight / 2) current = i;
-        });
-        navDots.forEach((d, i) => d.classList.toggle('active', i === current));
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); } });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Image parallax
+  document.querySelectorAll('section img.img-cover').forEach(img => {
+    if (img.closest('.horizontal-track') || img.closest('.card')) return;
+    gsap.to(img, {
+      yPercent: 10, ease: 'none',
+      scrollTrigger: { trigger: img.closest('section'), start: 'top bottom', end: 'bottom top', scrub: true }
     });
+  });
 
-    // Reveal animations
-    sections.forEach((sec) => {
-        const reveals = sec.querySelectorAll('.reveal-up');
-        if (reveals.length) {
-            gsap.fromTo(reveals, 
-                { opacity: 0, y: 50 },
-                {
-                    opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power2.out',
-                    scrollTrigger: { trigger: sec, start: 'top 75%', toggleActions: 'play none none reverse' }
-                }
-            );
-        }
+  // Horizontal scroll
+  const horizontalSection = document.querySelector('.horizontal-section');
+  const horizontalTrack = document.getElementById('horizontalTrack');
+  if (horizontalSection && horizontalTrack) {
+    const scrollWidth = horizontalTrack.scrollWidth - window.innerWidth + 200;
+    gsap.to(horizontalTrack, {
+      x: -scrollWidth, ease: 'none',
+      scrollTrigger: {
+        trigger: horizontalSection, start: 'top top',
+        end: () => `+=${scrollWidth}`, scrub: 1, pin: true, anticipatePin: 1
+      }
     });
-
-    // Image parallax inside sections
-    document.querySelectorAll('section img.img-cover').forEach((img) => {
-        if (img.closest('.horizontal-track') || img.closest('.panel')) return;
-        gsap.to(img, {
-            yPercent: 12, ease: 'none',
-            scrollTrigger: { trigger: img.closest('section'), start: 'top bottom', end: 'bottom top', scrub: true }
-        });
-    });
-
-    // Horizontal scroll
-    const horizontalSection = document.querySelector('.horizontal-section');
-    const horizontalTrack = document.getElementById('horizontalTrack');
-    if (horizontalSection && horizontalTrack) {
-        const scrollWidth = horizontalTrack.scrollWidth - window.innerWidth + 200;
-        gsap.to(horizontalTrack, {
-            x: -scrollWidth, ease: 'none',
-            scrollTrigger: { trigger: horizontalSection, start: 'top top', end: () => `+=${scrollWidth}`, scrub: 1, pin: true, anticipatePin: 1 }
-        });
-    }
+  }
 </script>
 </body>
 </html>

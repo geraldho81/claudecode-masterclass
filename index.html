@@ -461,6 +461,75 @@
 </section>
 
 
+<!-- ── 11b. WINDOWS SETUP ─────────────────────────────────── -->
+<section id="sec-win-setup" data-nav="win-setup" style="min-height:100vh;display:flex;align-items:center;background:var(--carbon);">
+  <div class="section-band" style="width:100%;">
+    <div class="section-inner">
+      <p class="section-kicker reveal">Windows</p>
+      <h2 class="reveal" style="margin-bottom:36px;">Claude Code<br><span style="font-style:italic;color:var(--muted);">Windows Setup</span></h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start;" class="three-col">
+
+        <!-- Phase 1 -->
+        <div class="card reveal" style="height:100%;">
+          <p class="section-kicker" style="margin-bottom:14px;">Phase 1</p>
+          <h3 style="margin-bottom:16px;">Prerequisites</h3>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="padding:14px 16px;background:rgba(244,241,234,0.04);border:1px solid var(--line);border-radius:6px;">
+              <p style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;">1. Install Git</p>
+              <p class="body-md">Download Git for Windows. Use default settings.</p>
+            </div>
+            <div style="padding:14px 16px;background:rgba(244,241,234,0.04);border:1px solid var(--line);border-radius:6px;">
+              <p style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;">2. Install Node.js</p>
+              <p class="body-md">Download Node.js 22 LTS. Install, then restart your computer.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="card reveal" style="height:100%;">
+          <p class="section-kicker" style="margin-bottom:14px;">Phase 2</p>
+          <h3 style="margin-bottom:16px;">Installation</h3>
+          <p class="body-md" style="margin-bottom:14px;">Open PowerShell as Administrator, then run:</p>
+          <div class="terminal-panel" style="margin-bottom:12px;">
+            <div class="terminal-topline"><span></span><span></span><span></span></div>
+            <div class="terminal-lines" style="gap:10px;">
+              <p><span>PS&gt;</span> <span class="t-acid">Set-ExecutionPolicy</span> RemoteSigned -Scope CurrentUser -Force</p>
+            </div>
+          </div>
+          <p class="body-md" style="margin-bottom:14px;">Then run the installer:</p>
+          <div class="terminal-panel">
+            <div class="terminal-topline"><span></span><span></span><span></span></div>
+            <div class="terminal-lines">
+              <p><span>PS&gt;</span> irm https://claude.ai/install.ps1 | iex</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="card-acid reveal" style="height:100%;">
+          <p class="section-kicker" style="margin-bottom:14px;color:var(--acid);">Phase 3</p>
+          <h3 style="color:var(--acid);margin-bottom:6px;">Final Fix</h3>
+          <p class="body-md" style="margin-bottom:14px;font-style:italic;">Only if <code>claude</code> command fails after install.</p>
+          <p class="body-md" style="margin-bottom:14px;">Run this to fix the PATH:</p>
+          <div class="terminal-panel" style="margin-bottom:14px;">
+            <div class="terminal-topline"><span></span><span></span><span></span></div>
+            <div class="terminal-lines">
+              <p style="word-break:break-all;"><span>PS&gt;</span> [Environment]::SetEnvironmentVariable("Path", $env:Path + ";$env:USERPROFILE\.local\bin", "User")</p>
+            </div>
+          </div>
+          <p class="body-md" style="margin-bottom:6px;">Then:</p>
+          <ol style="padding-left:18px;color:var(--muted);font-size:14px;line-height:1.7;">
+            <li>Restart the terminal</li>
+            <li>Type <code>claude</code> to start</li>
+          </ol>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
 <!-- ── 12. CONTEXT MANAGEMENT ────────────────────────────────── -->
 <section id="sec-context" data-nav="context" style="min-height:90vh;display:flex;align-items:center;position:relative;">
   <div style="position:absolute;inset:0;z-index:0;">
